@@ -1,0 +1,45 @@
+# Maven build output
+target/
+*.class
+
+# Maven wrapper download cache
+.mvn/wrapper/maven-wrapper.jar
+
+# Environment variables â€” NEVER commit real credentials
+.env
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.classpath
+*.project
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Local Maven distribution (downloaded for convenience)
+maven-dist/
+maven.zip
+# Local configuration and secrets
+.env.*
+!.env.example
+application-local.properties
+secrets.properties
+
+# Private keys and certificates
+*.pem
+*.key
+# Local credentials — never commit
+.env
+.env.*
+!.env.example
+run.ps1
+
+# Local tool state
+.sportsvaluation/

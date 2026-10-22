@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Sports Player Valuation &amp; Scouting System</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav>
+    <span class="brand">🏅 Sports Player Valuation &amp; Scouting System</span>
+</nav>
+
+<div class="container">
+    <h1>Welcome</h1>
+    <p>A multi-sport player scouting and valuation platform. Select your role to continue.</p>
+
+    <div th:if="${param.error}" class="alert alert-error">
+        Please enter your name to continue as a Scout.
+    </div>
+
+    <div class="role-cards">
+
+        <!-- Admin role card -->
+        <div class="role-card">
+            <h2>🛡 Admin</h2>
+            <p>Add, edit, and delete player profiles across all sports.</p>
+            <form action="/select-role" method="post">
+                <input type="hidden" name="role" value="ADMIN">
+                <button type="submit" class="btn btn-primary">Enter as Admin</button>
+            </form>
+        </div>
+
+        <!-- Scout role card -->
+        <div class="role-card">
+            <h2>🔍 Scout</h2>
+            <p>Search players, view valuations, compare players, and manage your shortlist.</p>
+            <form action="/select-role" method="post">
+                <input type="hidden" name="role" value="SCOUT">
+                <div class="form-group">
+                    <label for="scoutName">Your Name</label>
+                    <input type="text" id="scoutName" name="scoutName"
+                           placeholder="e.g. John Smith" required>
+                </div>
+                <button type="submit" class="btn btn-success">Enter as Scout</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

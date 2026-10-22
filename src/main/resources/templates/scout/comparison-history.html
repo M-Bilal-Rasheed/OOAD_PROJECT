@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comparison History — SPVSS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS</a>
+    <div>
+        <a th:href="@{/scout/players}">Players</a>
+        <a th:href="@{/scout/compare}">Compare</a>
+        <a th:href="@{/scout/comparisons}">History</a>
+        <a th:href="@{/scout/shortlist}">Shortlist</a>
+        <a th:href="@{/logout}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Comparison History</h1>
+    <p>View and manage your saved player comparisons.</p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}"   class="alert alert-error"   th:text="${errorMessage}"></div>
+
+    <div th:if="${#lists.isEmpty(comparisons)}" class="alert alert-info">
+        You have not saved any comparisons yet.
+        <a th:href="@{/scout/compare}">Compare two players →</a>
+    </div>
+
+    <table th:unless="${#lists.isEmpty(comparisons)}">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Date Created</th>
+                <th>Players</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${comparisons}">
+                <td>
+                    <a th:href="@{/scout/comparisons/{id}(id=${c.id})}"
+                       th:text="${c.title} ?: 'Comparison ' + ${c.id}">
+                        Comparison
+                    </a>
+                </td>
+                <td th:text="${#temporals.format(c.createdAt, 'yyyy-MM-dd HH:mm')}">
+                    2026-01-01 12:00
+                </td>
+                <td>
+                    <span th:text="${#lists.size(c.comparisonPlayers)}">2</span> players
+                </td>
+                <td>
+                    <a th:href="@{/scout/comparisons/{id}(id=${c.id})}" class="btn btn-primary">View</a>
+                    <form th:action="@{/scout/comparisons/{id}/delete(id=${c.id})}"
+                          method="post" style="display:inline;"
+                          onsubmit="return confirm('Delete this saved comparison?');">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <br>
+    <a th:href="@{/scout/compare}" class="btn btn-success">+ New Comparison</a>
+</div>
+
+</body>
+</html>

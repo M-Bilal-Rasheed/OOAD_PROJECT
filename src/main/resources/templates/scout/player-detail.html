@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${player.name} + ' — SPVSS'">Player Detail</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS — Scout</a>
+    <div>
+        <a th:href="@{/scout/players}">Players</a>
+        <a th:href="@{/scout/compare}">Compare</a>
+        <a th:href="@{/scout/shortlist}">My Shortlist</a>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+
+    <div th:if="${successMessage}"   class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}"     class="alert alert-error"   th:text="${errorMessage}"></div>
+    <div th:if="${valuationMessage}" class="alert alert-info"    th:text="${valuationMessage}"></div>
+
+    <h1 th:text="${player.name}">Player Name</h1>
+
+    <!-- Personal details -->
+    <div class="card">
+        <h2>Personal Details</h2>
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>Sport</label>
+                <span th:text="${player.sport}"></span>
+            </div>
+            <div class="detail-item">
+                <label>Age</label>
+                <span th:text="${player.age}"></span>
+            </div>
+            <div class="detail-item">
+                <label>Nationality</label>
+                <span th:text="${player.nationality}"></span>
+            </div>
+            <div class="detail-item">
+                <label>Position / Role</label>
+                <span th:text="${player.position}"></span>
+            </div>
+            <div class="detail-item">
+                <label>Team / Club</label>
+                <span th:text="${player.club}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Composition: displaying PlayerStatistics owned by this Player -->
+    <!-- Labels are sport-specific, retrieved from player.sportStatLabels -->
+    <div class="card">
+        <h2>Player Statistics</h2>
+        <div class="detail-grid" th:with="labels=${player.sportStatLabels}">
+            <div class="detail-item">
+                <label th:text="${labels[0]}">Stat 1</label>
+                <span th:text="${player.statistics.stat1}"></span>
+            </div>
+            <div class="detail-item">
+                <label th:text="${labels[1]}">Stat 2</label>
+                <span th:text="${player.statistics.stat2}"></span>
+            </div>
+            <div class="detail-item">
+                <label th:text="${labels[2]}">Stat 3</label>
+                <span th:text="${player.statistics.stat3}"></span>
+            </div>
+            <div class="detail-item">
+                <label th:text="${labels[3]}">Stat 4</label>
+                <span th:text="${player.statistics.stat4}"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Valuation — Strategy Pattern + Polymorphism -->
+    <div class="card">
+        <h2>Estimated Market Value</h2>
+
+        <div th:if="${player.estimatedValue != null}" class="valuation-box">
+            <strong>Estimated Value: </strong>
+            <span th:text="'£' + ${#numbers.formatInteger(player.estimatedValue, 1, 'COMMA')}"></span>
+            <br>
+            <small style="color:#666;">
+                Educational estimate only — not a real market valuation.
+                The formula uses sport-specific weights applied to the four statistics above.
+            </small>
+        </div>
+
+        <div th:unless="${player.estimatedValue != null}" style="color:#999; margin-bottom:12px;">
+            Valuation not yet calculated for this player.
+        </div>
+
+        <form th:action="@{/scout/players/{id}/valuate(id=${player.id})}" method="post">
+            <button type="submit" class="btn btn-warning"
+                    th:text="${player.estimatedValue != null} ? 'Recalculate Valuation' : 'Calculate Valuation'">
+                Calculate Valuation
+            </button>
+        </form>
+    </div>
+
+    <!-- Shortlist — Aggregation -->
+    <div class="card">
+        <h2>Shortlist</h2>
+
+        <div th:if="${alreadyShortlisted}" class="alert alert-info">
+            This player is already on your shortlist.
+        </div>
+
+        <form th:unless="${alreadyShortlisted}"
+              th:action="@{/scout/shortlist/add/{id}(id=${player.id})}" method="post">
+            <button type="submit" class="btn btn-success">📌 Add to Shortlist</button>
+        </form>
+    </div>
+
+    <a th:href="@{/scout/players}" class="btn btn-secondary">← Back to Players</a>
+</div>
+
+</body>
+</html>

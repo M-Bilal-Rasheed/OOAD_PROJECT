@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Scout Dashboard — SPVSS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS</a>
+    <div>
+        <a th:href="@{/scout/players}">Players</a>
+        <a th:href="@{/scout/compare}">Compare</a>
+        <a th:href="@{/scout/comparisons}">History</a>
+        <a th:href="@{/scout/shortlist}">Shortlist</a>
+        <span class="nav-user" th:text="${scoutName}">Scout</span>
+        <a th:href="@{/logout}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Scout Dashboard</h1>
+    <p>Welcome, <strong th:text="${scoutName}">Scout</strong>.</p>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-number" th:text="${totalPlayers}">0</div>
+            <div class="stat-label">Total Players</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${valuedPlayers}">0</div>
+            <div class="stat-label">Players Valued</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${shortlistCount}">0</div>
+            <div class="stat-label">My Shortlist</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${footballCount}">0</div>
+            <div class="stat-label">⚽ Football</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${cricketCount}">0</div>
+            <div class="stat-label">🏏 Cricket</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${basketballCount}">0</div>
+            <div class="stat-label">🏀 Basketball</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${tennisCount}">0</div>
+            <div class="stat-label">🎾 Tennis</div>
+        </div>
+    </div>
+
+    <div class="dashboard-links">
+        <a th:href="@{/scout/players}"     class="dashboard-link">🔍 Search Players</a>
+        <a th:href="@{/scout/compare}"     class="dashboard-link">⚖ Compare Players</a>
+        <a th:href="@{/scout/comparisons}" class="dashboard-link">📂 Comparison History</a>
+        <a th:href="@{/scout/shortlist}"   class="dashboard-link">📌 My Shortlist</a>
+    </div>
+</div>
+
+</body>
+</html>

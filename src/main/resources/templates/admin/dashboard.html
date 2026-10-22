@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard — SPVSS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/admin/dashboard}">🏅 SPVSS</a>
+    <div>
+        <a th:href="@{/admin/players}">All Players</a>
+        <a th:href="@{/admin/players/new}">Add Player</a>
+        <span class="nav-user" th:text="${fullName}">Admin</span>
+        <a th:href="@{/logout}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome, <strong th:text="${fullName}">Admin</strong>. Manage player profiles across all sports.</p>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-number" th:text="${totalPlayers}">0</div>
+            <div class="stat-label">Total Players</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${valuedPlayers}">0</div>
+            <div class="stat-label">Players Valued</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${footballCount}">0</div>
+            <div class="stat-label">⚽ Football</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${cricketCount}">0</div>
+            <div class="stat-label">🏏 Cricket</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${basketballCount}">0</div>
+            <div class="stat-label">🏀 Basketball</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" th:text="${tennisCount}">0</div>
+            <div class="stat-label">🎾 Tennis</div>
+        </div>
+    </div>
+
+    <div class="dashboard-links">
+        <a th:href="@{/admin/players}"     class="dashboard-link">📋 View All Players</a>
+        <a th:href="@{/admin/players/new}" class="dashboard-link">➕ Add New Player</a>
+    </div>
+</div>
+
+</body>
+</html>

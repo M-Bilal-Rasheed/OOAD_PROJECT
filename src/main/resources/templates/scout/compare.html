@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Compare Players — SPVSS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS — Scout</a>
+    <div>
+        <a th:href="@{/scout/players}">Players</a>
+        <a th:href="@{/scout/compare}">Compare</a>
+        <a th:href="@{/scout/shortlist}">My Shortlist</a>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Compare Two Players</h1>
+
+    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+
+    <div class="card">
+        <p style="margin-bottom:16px; color:#555;">
+            Select two different players to compare their statistics side by side.
+            Both players can be from any sport.
+        </p>
+
+        <form th:action="@{/scout/compare/result}" method="get">
+            <div class="form-group">
+                <label for="player1Id">Player 1</label>
+                <select id="player1Id" name="player1Id" required>
+                    <option value="">-- Select first player --</option>
+                    <option th:each="p : ${players}"
+                            th:value="${p.id}"
+                            th:text="${p.name} + ' (' + ${p.sport} + ' — ' + ${p.position} + ')'">
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="player2Id">Player 2</label>
+                <select id="player2Id" name="player2Id" required>
+                    <option value="">-- Select second player --</option>
+                    <option th:each="p : ${players}"
+                            th:value="${p.id}"
+                            th:text="${p.name} + ' (' + ${p.sport} + ' — ' + ${p.position} + ')'">
+                    </option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Compare</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Comparison Result — SPVSS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS</a>
+    <div>
+        <a th:href="@{/scout/players}">Players</a>
+        <a th:href="@{/scout/compare}">Compare</a>
+        <a th:href="@{/scout/comparisons}">History</a>
+        <a th:href="@{/scout/shortlist}">Shortlist</a>
+        <a th:href="@{/logout}" class="nav-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Player Comparison</h1>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}"   class="alert alert-error"   th:text="${errorMessage}"></div>
+
+    <div th:if="${#lists.size(twoPlayers) == 2}"
+         th:with="p1=${twoPlayers[0]}, p2=${twoPlayers[1]}">
+
+        <div th:if="${p1.sport != p2.sport}" class="alert alert-info">
+            Note: These players are from different sports. Stat labels reflect each player's own sport.
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Attribute</th>
+                    <th th:text="${p1.name} + ' (' + ${p1.sport} + ')'">Player 1</th>
+                    <th th:text="${p2.name} + ' (' + ${p2.sport} + ')'">Player 2</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Sport</strong></td>
+                    <td th:text="${p1.sport}"></td>
+                    <td th:text="${p2.sport}"></td>
+                </tr>
+                <tr>
+                    <td><strong>Position / Role</strong></td>
+                    <td th:text="${p1.position}"></td>
+                    <td th:text="${p2.position}"></td>
+                </tr>
+                <tr>
+                    <td><strong>Team / Club</strong></td>
+                    <td th:text="${p1.club}"></td>
+                    <td th:text="${p2.club}"></td>
+                </tr>
+                <tr>
+                    <td><strong>Age</strong></td>
+                    <td th:text="${p1.age}"
+                        th:classappend="${p1.age <= p2.age} ? 'highlight' : ''"></td>
+                    <td th:text="${p2.age}"
+                        th:classappend="${p2.age <= p1.age} ? 'highlight' : ''"></td>
+                </tr>
+                <tr th:with="l1=${p1.sportStatLabels[0]}, l2=${p2.sportStatLabels[0]}">
+                    <td><strong th:text="${l1}">Stat 1</strong>
+                        <span th:if="${l1 != l2}" style="color:#999; font-size:0.8rem;"> / <span th:text="${l2}"></span></span>
+                    </td>
+                    <td th:text="${p1.statistics.stat1}"
+                        th:classappend="${p1.statistics.stat1 >= p2.statistics.stat1} ? 'highlight' : ''"></td>
+                    <td th:text="${p2.statistics.stat1}"
+                        th:classappend="${p2.statistics.stat1 >= p1.statistics.stat1} ? 'highlight' : ''"></td>
+                </tr>
+                <tr th:with="l1=${p1.sportStatLabels[1]}, l2=${p2.sportStatLabels[1]}">
+                    <td><strong th:text="${l1}">Stat 2</strong>
+                        <span th:if="${l1 != l2}" style="color:#999; font-size:0.8rem;"> / <span th:text="${l2}"></span></span>
+                    </td>
+                    <td th:text="${p1.statistics.stat2}"
+                        th:classappend="${p1.statistics.stat2 >= p2.statistics.stat2} ? 'highlight' : ''"></td>
+                    <td th:text="${p2.statistics.stat2}"
+                        th:classappend="${p2.statistics.stat2 >= p1.statistics.stat2} ? 'highlight' : ''"></td>
+                </tr>
+                <tr th:with="l1=${p1.sportStatLabels[2]}, l2=${p2.sportStatLabels[2]}">
+                    <td><strong th:text="${l1}">Stat 3</strong>
+                        <span th:if="${l1 != l2}" style="color:#999; font-size:0.8rem;"> / <span th:text="${l2}"></span></span>
+                    </td>
+                    <td th:text="${p1.statistics.stat3}"
+                        th:classappend="${p1.statistics.stat3 >= p2.statistics.stat3} ? 'highlight' : ''"></td>
+                    <td th:text="${p2.statistics.stat3}"
+                        th:classappend="${p2.statistics.stat3 >= p1.statistics.stat3} ? 'highlight' : ''"></td>
+                </tr>
+                <tr th:with="l1=${p1.sportStatLabels[3]}, l2=${p2.sportStatLabels[3]}">
+                    <td><strong th:text="${l1}">Stat 4</strong>
+                        <span th:if="${l1 != l2}" style="color:#999; font-size:0.8rem;"> / <span th:text="${l2}"></span></span>
+                    </td>
+                    <td th:text="${p1.statistics.stat4}"
+                        th:classappend="${p1.statistics.stat4 >= p2.statistics.stat4} ? 'highlight' : ''"></td>
+                    <td th:text="${p2.statistics.stat4}"
+                        th:classappend="${p2.statistics.stat4 >= p1.statistics.stat4} ? 'highlight' : ''"></td>
+                </tr>
+                <tr>
+                    <td><strong>Estimated Value</strong></td>
+                    <td>
+                        <span th:if="${p1.estimatedValue != null}"
+                              th:text="'£' + ${#numbers.formatInteger(p1.estimatedValue, 1, 'COMMA')}"
+                              th:classappend="${p1.estimatedValue != null and p2.estimatedValue != null
+                                              and p1.estimatedValue >= p2.estimatedValue} ? 'highlight' : ''"></span>
+                        <span th:unless="${p1.estimatedValue != null}" style="color:#999;">Not calculated</span>
+                    </td>
+                    <td>
+                        <span th:if="${p2.estimatedValue != null}"
+                              th:text="'£' + ${#numbers.formatInteger(p2.estimatedValue, 1, 'COMMA')}"
+                              th:classappend="${p2.estimatedValue != null and p1.estimatedValue != null
+                                              and p2.estimatedValue >= p1.estimatedValue} ? 'highlight' : ''"></span>
+                        <span th:unless="${p2.estimatedValue != null}" style="color:#999;">Not calculated</span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="color:#666; font-size:0.85rem; margin-bottom:16px;">
+            ✅ Green cells indicate the higher (better) value. For Age, the younger player is highlighted.
+        </p>
+
+        <!-- Save Comparison form — only shown when viewing a live result (not a reopened saved one) -->
+        <div th:if="${player1Id != null and player2Id != null}" class="card">
+            <h2>Save this Comparison</h2>
+            <form th:action="@{/scout/comparisons/save}" method="post">
+                <input type="hidden" name="player1Id" th:value="${player1Id}">
+                <input type="hidden" name="player2Id" th:value="${player2Id}">
+                <div class="form-group">
+                    <label for="title">Title <small style="color:#999;">(optional)</small></label>
+                    <input type="text" id="title" name="title"
+                           placeholder="e.g. Striker showdown — Messi vs Ronaldo">
+                </div>
+                <button type="submit" class="btn btn-success">💾 Save Comparison</button>
+            </form>
+        </div>
+
+        <!-- Shown when reopening a saved comparison -->
+        <div th:unless="${player1Id != null and player2Id != null}" class="alert alert-info">
+            This is a saved comparison.
+            <a th:href="@{/scout/comparisons}">View all saved comparisons →</a>
+        </div>
+
+    </div>
+
+    <br>
+    <a th:href="@{/scout/compare}"     class="btn btn-secondary">← Compare Again</a>
+    <a th:href="@{/scout/comparisons}" class="btn btn-primary">📂 My Comparison History</a>
+</div>
+
+</body>
+</html>

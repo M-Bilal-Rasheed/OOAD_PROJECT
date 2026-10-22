@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Shortlist — SPVSS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav>
+    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS — Scout</a>
+    <div>
+        <a th:href="@{/scout/players}">Players</a>
+        <a th:href="@{/scout/compare}">Compare</a>
+        <a th:href="@{/scout/shortlist}">My Shortlist</a>
+        <a th:href="@{/logout}">Logout</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>My Shortlist</h1>
+    <p>Scout: <strong th:text="${scoutName}"></strong></p>
+
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+    <!-- Aggregation: shortlist holds references to Player objects.
+         Removing a player from this list does NOT delete them from the database. -->
+    <div th:if="${#lists.isEmpty(shortlist)}" class="alert alert-info">
+        Your shortlist is empty. Browse players and click "Add to Shortlist" to add them here.
+    </div>
+
+    <table th:unless="${#lists.isEmpty(shortlist)}">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Sport</th>
+                <th>Position</th>
+                <th>Team / Club</th>
+                <th>Nationality</th>
+                <th>Est. Value</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="player, iterStat : ${shortlist}">
+                <td th:text="${player.name}"></td>
+                <td th:text="${player.sport}"></td>
+                <td th:text="${player.position}"></td>
+                <td th:text="${player.club}"></td>
+                <td th:text="${player.nationality}"></td>
+                <td>
+                    <span th:if="${player.estimatedValue != null}"
+                          th:text="'£' + ${#numbers.formatInteger(player.estimatedValue, 1, 'COMMA')}"></span>
+                    <span th:unless="${player.estimatedValue != null}" style="color:#999;">Not calculated</span>
+                </td>
+                <td>
+                    <a th:href="@{/scout/players/{id}(id=${player.id})}" class="btn btn-primary">View</a>
+                    <!-- Aggregation: remove only from shortlist, player still exists in DB -->
+                    <form th:action="@{/scout/shortlist/remove/{entryId}(entryId=${entryIds[iterStat.index]})}"
+                          method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/scout/players}" class="btn btn-secondary">← Back to Players</a>
+</div>
+
+</body>
+</html>

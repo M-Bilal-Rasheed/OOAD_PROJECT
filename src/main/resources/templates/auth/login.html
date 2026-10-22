@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login — SPVSS</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="auth-page">
+
+<div class="auth-container">
+
+    <div class="auth-brand">
+        <span>🏅</span>
+        <h1>Sports Player Valuation &amp; Scouting</h1>
+        <p>Sign in to your account (Admin or Scout)</p>
+    </div>
+
+    <!-- Flash messages -->
+    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+    <div th:if="${logoutMessage}"  class="alert alert-info"    th:text="${logoutMessage}"></div>
+    <div th:if="${errorMessage}"   class="alert alert-error"   th:text="${errorMessage}"></div>
+
+    <div class="auth-card">
+        <form th:action="@{/login}" method="post">
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email"
+                       th:value="${enteredEmail}"
+                       placeholder="you@example.com" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       placeholder="Your password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+        </form>
+
+        <p class="auth-link">
+            Don't have an account?
+            <a th:href="@{/signup}">Create a Scout account</a>
+        </p>
+    </div>
+
+</div>
+
+</body>
+</html>
