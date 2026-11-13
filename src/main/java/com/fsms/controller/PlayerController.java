@@ -54,9 +54,16 @@ public class PlayerController {
     // List all players
     @GetMapping("/players")
     public String listPlayers(Model model, HttpSession session) {
-        if (!isAdmin(session)) return "redirect:/login";
-        model.addAttribute("players", playerService.getAllPlayers());
-        return "admin/player-list";
+        if (!isAdmin(session)) {
+            return "redirect:/login";
+        }
+        try {
+            model.addAttribute("players", playerService.getAllPlayers());
+            return "admin/player-list";
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Failed to load players: " + e.getMessage());
+            return "redirect:/admin/dashboard";
+        }
     }
 
     // Show blank add form

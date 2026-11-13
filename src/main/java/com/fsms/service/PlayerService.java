@@ -58,8 +58,15 @@ public class PlayerService {
     // (otherwise the player_id foreign key would block the delete).
     @Transactional
     public void deletePlayer(Long id) {
-        scoutingReportRepository.deleteByPlayerId(id);
-        playerRepository.deleteById(id);
+        try {
+            // Delete all scouting reports for this player first
+            scoutingReportRepository.deleteByPlayerId(id);
+            // Then delete the player itself
+            playerRepository.deleteById(id);
+        } catch (Exception e) {
+            // Log the error and re-throw
+            throw new RuntimeException("Failed to delete player: " + e.getMessage(), e);
+        }
     }
 
     public List<Player> getAllPlayers() {
