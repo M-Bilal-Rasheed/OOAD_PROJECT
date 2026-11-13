@@ -1,154 +1,188 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Comparison Result — SPVSS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Comparison result')}"></head>
 <body>
 
-<nav>
-    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS</a>
-    <div>
-        <a th:href="@{/scout/players}">Players</a>
-        <a th:href="@{/scout/compare}">Compare</a>
-        <a th:href="@{/scout/comparisons}">History</a>
-        <a th:href="@{/scout/shortlist}">Shortlist</a>
-        <a th:href="@{/logout}" class="nav-logout">Logout</a>
-    </div>
-</nav>
+<header th:replace="~{fragments/layout :: topbar('compare')}"></header>
 
-<div class="container">
-    <h1>Player Comparison</h1>
-
-    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-    <div th:if="${errorMessage}"   class="alert alert-error"   th:text="${errorMessage}"></div>
-
-    <div th:if="${#lists.size(twoPlayers) == 2}"
-         th:with="p1=${twoPlayers[0]}, p2=${twoPlayers[1]}">
-
-        <div th:if="${p1.sport != p2.sport}" class="alert alert-info">
-            Note: These players are from different sports. Stat labels reflect each player's own sport.
+<main class="page">
+    <div class="page-header">
+        <div>
+            <div class="breadcrumb">
+                <a th:href="@{/scout/compare}">Compare</a> /
+                <span th:text="${savedComparison != null} ? 'Saved comparison' : 'Result'">Result</span>
+            </div>
+            <h1 th:text="${savedComparison != null} ? ${savedComparison.title} : 'Player comparison'">Player comparison</h1>
+            <p th:if="${comparison != null}" th:text="${comparison.verdict}">Verdict</p>
         </div>
+        <div class="actions">
+            <a th:href="@{/scout/compare}" class="btn btn-outline">New comparison</a>
+            <a th:href="@{/scout/comparisons}" class="btn btn-outline">Comparison history</a>
+        </div>
+    </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Attribute</th>
-                    <th th:text="${p1.name} + ' (' + ${p1.sport} + ')'">Player 1</th>
-                    <th th:text="${p2.name} + ' (' + ${p2.sport} + ')'">Player 2</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td><strong>Sport</strong></td>
-                    <td th:text="${p1.sport}"></td>
-                    <td th:text="${p2.sport}"></td>
-                </tr>
-                <tr>
-                    <td><strong>Position / Role</strong></td>
-                    <td th:text="${p1.position}"></td>
-                    <td th:text="${p2.position}"></td>
-                </tr>
-                <tr>
-                    <td><strong>Team / Club</strong></td>
-                    <td th:text="${p1.club}"></td>
-                    <td th:text="${p2.club}"></td>
-                </tr>
-                <tr>
-                    <td><strong>Age</strong></td>
-                    <td th:text="${p1.age}"
-                        th:classappend="${p1.age <= p2.age} ? 'highlight' : ''"></td>
-                    <td th:text="${p2.age}"
-                        th:classappend="${p2.age <= p1.age} ? 'highlight' : ''"></td>
-                </tr>
-                <tr th:with="l1=${p1.sportStatLabels[0]}, l2=${p2.sportStatLabels[0]}">
-                    <td><strong th:text="${l1}">Stat 1</strong>
-                        <span th:if="${l1 != l2}" style="color:#999; font-size:0.8rem;"> / <span th:text="${l2}"></span></span>
-                    </td>
-                    <td th:text="${p1.statistics.stat1}"
-                        th:classappend="${p1.statistics.stat1 >= p2.statistics.stat1} ? 'highlight' : ''"></td>
-                    <td th:text="${p2.statistics.stat1}"
-                        th:classappend="${p2.statistics.stat1 >= p1.statistics.stat1} ? 'highlight' : ''"></td>
-                </tr>
-                <tr th:with="l1=${p1.sportStatLabels[1]}, l2=${p2.sportStatLabels[1]}">
-                    <td><strong th:text="${l1}">Stat 2</strong>
-                        <span th:if="${l1 != l2}" style="color:#999; font-size:0.8rem;"> / <span th:text="${l2}"></span></span>
-                    </td>
-                    <td th:text="${p1.statistics.stat2}"
-                        th:classappend="${p1.statistics.stat2 >= p2.statistics.stat2} ? 'highlight' : ''"></td>
-                    <td th:text="${p2.statistics.stat2}"
-                        th:classappend="${p2.statistics.stat2 >= p1.statistics.stat2} ? 'highlight' : ''"></td>
-                </tr>
-                <tr th:with="l1=${p1.sportStatLabels[2]}, l2=${p2.sportStatLabels[2]}">
-                    <td><strong th:text="${l1}">Stat 3</strong>
-                        <span th:if="${l1 != l2}" style="color:#999; font-size:0.8rem;"> / <span th:text="${l2}"></span></span>
-                    </td>
-                    <td th:text="${p1.statistics.stat3}"
-                        th:classappend="${p1.statistics.stat3 >= p2.statistics.stat3} ? 'highlight' : ''"></td>
-                    <td th:text="${p2.statistics.stat3}"
-                        th:classappend="${p2.statistics.stat3 >= p1.statistics.stat3} ? 'highlight' : ''"></td>
-                </tr>
-                <tr th:with="l1=${p1.sportStatLabels[3]}, l2=${p2.sportStatLabels[3]}">
-                    <td><strong th:text="${l1}">Stat 4</strong>
-                        <span th:if="${l1 != l2}" style="color:#999; font-size:0.8rem;"> / <span th:text="${l2}"></span></span>
-                    </td>
-                    <td th:text="${p1.statistics.stat4}"
-                        th:classappend="${p1.statistics.stat4 >= p2.statistics.stat4} ? 'highlight' : ''"></td>
-                    <td th:text="${p2.statistics.stat4}"
-                        th:classappend="${p2.statistics.stat4 >= p1.statistics.stat4} ? 'highlight' : ''"></td>
-                </tr>
-                <tr>
-                    <td><strong>Estimated Value</strong></td>
-                    <td>
-                        <span th:if="${p1.estimatedValue != null}"
-                              th:text="'£' + ${#numbers.formatInteger(p1.estimatedValue, 1, 'COMMA')}"
-                              th:classappend="${p1.estimatedValue != null and p2.estimatedValue != null
-                                              and p1.estimatedValue >= p2.estimatedValue} ? 'highlight' : ''"></span>
-                        <span th:unless="${p1.estimatedValue != null}" style="color:#999;">Not calculated</span>
-                    </td>
-                    <td>
-                        <span th:if="${p2.estimatedValue != null}"
-                              th:text="'£' + ${#numbers.formatInteger(p2.estimatedValue, 1, 'COMMA')}"
-                              th:classappend="${p2.estimatedValue != null and p1.estimatedValue != null
-                                              and p2.estimatedValue >= p1.estimatedValue} ? 'highlight' : ''"></span>
-                        <span th:unless="${p2.estimatedValue != null}" style="color:#999;">Not calculated</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
 
-        <p style="color:#666; font-size:0.85rem; margin-bottom:16px;">
-            ✅ Green cells indicate the higher (better) value. For Age, the younger player is highlighted.
-        </p>
+    <div th:if="${#lists.size(twoPlayers) == 2}" th:with="p1=${twoPlayers[0]}, p2=${twoPlayers[1]}">
 
-        <!-- Save Comparison form — only shown when viewing a live result (not a reopened saved one) -->
-        <div th:if="${player1Id != null and player2Id != null}" class="card">
-            <h2>Save this Comparison</h2>
-            <form th:action="@{/scout/comparisons/save}" method="post">
+        <!-- ===== Same-sport comparison with analytics ===== -->
+        <th:block th:if="${comparison != null}">
+            <section class="versus" aria-label="Players">
+                <div class="versus-player side-a">
+                    <span class="badge badge-a">Player A</span>
+                    <h2 style="margin-top:8px"><a class="cell-link" th:href="@{/scout/players/{id}(id=${p1.id})}" th:text="${p1.name}">A</a></h2>
+                    <div class="meta" th:text="${p1.position} + ' · ' + ${p1.club} + ' · Age ' + ${p1.age}">meta</div>
+                    <div class="big"><span th:text="${comparison.winsA}">0</span> <small class="muted">stats won</small></div>
+                    <div class="meta">Performance index <strong th:text="${comparison.indexA}">0</strong>/100</div>
+                </div>
+                <div class="versus-vs">VS</div>
+                <div class="versus-player side-b">
+                    <span class="badge badge-b">Player B</span>
+                    <h2 style="margin-top:8px"><a class="cell-link" th:href="@{/scout/players/{id}(id=${p2.id})}" th:text="${p2.name}">B</a></h2>
+                    <div class="meta" th:text="${p2.position} + ' · ' + ${p2.club} + ' · Age ' + ${p2.age}">meta</div>
+                    <div class="big"><span th:text="${comparison.winsB}">0</span> <small class="muted">stats won</small></div>
+                    <div class="meta">Performance index <strong th:text="${comparison.indexB}">0</strong>/100</div>
+                </div>
+            </section>
+
+            <div class="grid grid-main-side">
+                <section class="card">
+                    <div class="card-header">
+                        <h2>Head to head</h2>
+                        <span class="badge badge-sport" th:classappend="'badge-' + ${#strings.toLowerCase(p1.sport)}" th:text="${p1.sport}"></span>
+                    </div>
+                    <p class="card-sub" style="margin-bottom:16px">
+                        Bars show each value's score within the sport (100 = best stored value). The better value is marked.
+                    </p>
+                    <div class="duel">
+                        <div class="duel-row" th:each="row : ${comparison.rows}">
+                            <div class="duel-side a">
+                                <span class="duel-val" th:classappend="${row.winner == 'A'} ? 'win'" th:text="${row.formattedA}">0</span>
+                                <div class="bar-track"><div class="bar-fill bar-a" th:style="'width:' + ${row.barA} + '%'"></div></div>
+                            </div>
+                            <div class="duel-label">
+                                <span th:text="${row.definition.shortLabel}">Stat</span>
+                                <small class="muted" th:text="${row.definition.directionLabel}">Higher is better</small>
+                            </div>
+                            <div class="duel-side b">
+                                <div class="bar-track"><div class="bar-fill bar-b" th:style="'width:' + ${row.barB} + '%'"></div></div>
+                                <span class="duel-val" th:classappend="${row.winner == 'B'} ? 'win'" th:text="${row.formattedB}">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h2>Performance shape</h2>
+                    <svg class="radar" viewBox="-40 -6 400 332" role="img"
+                         aria-label="Radar chart of both players' statistic scores">
+                        <polygon class="grid-ring" th:each="ring : ${comparison.radar.grid}" th:attr="points=${ring}"></polygon>
+                        <line class="axis" th:each="ax : ${comparison.radar.axes}" x1="160" y1="160"
+                              th:attr="x2=${ax.x}, y2=${ax.y}"></line>
+                        <polygon class="series-a" th:attr="points=${comparison.radar.polygonA}"></polygon>
+                        <polygon class="series-b" th:attr="points=${comparison.radar.polygonB}"></polygon>
+                        <text class="axis-label" th:each="ax : ${comparison.radar.axes}"
+                              th:attr="x=${ax.labelX}, y=${ax.labelY}, text-anchor=${ax.anchor}" th:text="${ax.label}">Stat</text>
+                    </svg>
+                    <div class="legend">
+                        <span class="la" th:text="${p1.name}">A</span>
+                        <span class="lb" th:text="${p2.name}">B</span>
+                    </div>
+                </section>
+            </div>
+
+            <section class="table-wrap" aria-label="Full comparison table">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Attribute</th>
+                        <th th:text="${p1.name}">A</th>
+                        <th th:text="${p2.name}">B</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr><td class="cell-strong">Position / role</td><td th:text="${p1.position}"></td><td th:text="${p2.position}"></td></tr>
+                    <tr><td class="cell-strong">Team / club</td><td th:text="${p1.club}"></td><td th:text="${p2.club}"></td></tr>
+                    <tr>
+                        <td class="cell-strong">Age <small class="muted">(younger highlighted)</small></td>
+                        <td class="num" th:text="${p1.age}" th:classappend="${p1.age < p2.age} ? 'highlight'"></td>
+                        <td class="num" th:text="${p2.age}" th:classappend="${p2.age < p1.age} ? 'highlight'"></td>
+                    </tr>
+                    <tr th:each="row : ${comparison.rows}">
+                        <td class="cell-strong"><span th:text="${row.definition.label}">Stat</span>
+                            <small class="muted" th:text="' · ' + ${row.definition.directionLabel}"></small></td>
+                        <td class="num" th:text="${row.formattedA}" th:classappend="${row.winner == 'A'} ? 'highlight'"></td>
+                        <td class="num" th:text="${row.formattedB}" th:classappend="${row.winner == 'B'} ? 'highlight'"></td>
+                    </tr>
+                    <tr>
+                        <td class="cell-strong">Estimated value</td>
+                        <td class="num" th:classappend="${p1.estimatedValue != null and p2.estimatedValue != null and p1.estimatedValue > p2.estimatedValue} ? 'highlight'">
+                            <span th:if="${p1.estimatedValue != null}" th:text="'£' + ${#numbers.formatInteger(p1.estimatedValue, 1, 'COMMA')}"></span>
+                            <span th:unless="${p1.estimatedValue != null}" class="muted">Not calculated</span>
+                        </td>
+                        <td class="num" th:classappend="${p1.estimatedValue != null and p2.estimatedValue != null and p2.estimatedValue > p1.estimatedValue} ? 'highlight'">
+                            <span th:if="${p2.estimatedValue != null}" th:text="'£' + ${#numbers.formatInteger(p2.estimatedValue, 1, 'COMMA')}"></span>
+                            <span th:unless="${p2.estimatedValue != null}" class="muted">Not calculated</span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+            <p class="muted" style="font-size:.84rem; margin-bottom:18px">
+                Highlighted cells show the better value under each statistic's own rule. Equal values are not highlighted.
+            </p>
+        </th:block>
+
+        <!-- ===== Legacy saved comparison between different sports ===== -->
+        <th:block th:if="${comparison == null}">
+            <div class="alert alert-warning">
+                This comparison was saved before same-sport comparisons were enforced:
+                <strong th:text="${p1.name}"></strong> (<span th:text="${p1.sport}"></span>) and
+                <strong th:text="${p2.name}"></strong> (<span th:text="${p2.sport}"></span>) play different sports,
+                so their statistics are shown side by side without a winner.
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr><th>Attribute</th><th th:text="${p1.name}">A</th><th th:text="${p2.name}">B</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td class="cell-strong">Sport</td><td th:text="${p1.sport}"></td><td th:text="${p2.sport}"></td></tr>
+                    <tr><td class="cell-strong">Position / role</td><td th:text="${p1.position}"></td><td th:text="${p2.position}"></td></tr>
+                    <tr><td class="cell-strong">Team / club</td><td th:text="${p1.club}"></td><td th:text="${p2.club}"></td></tr>
+                    <tr><td class="cell-strong">Age</td><td th:text="${p1.age}"></td><td th:text="${p2.age}"></td></tr>
+                    <tr th:each="i : ${#numbers.sequence(0, 3)}">
+                        <td class="cell-strong">Stat <span th:text="${i + 1}"></span></td>
+                        <td><span th:text="${p1.sportStatLabels[i]}" class="muted"></span>:
+                            <strong th:text="${i == 0} ? ${p1.statistics.stat1} : (${i == 1} ? ${p1.statistics.stat2} : (${i == 2} ? ${p1.statistics.stat3} : ${p1.statistics.stat4}))"></strong></td>
+                        <td><span th:text="${p2.sportStatLabels[i]}" class="muted"></span>:
+                            <strong th:text="${i == 0} ? ${p2.statistics.stat1} : (${i == 1} ? ${p2.statistics.stat2} : (${i == 2} ? ${p2.statistics.stat3} : ${p2.statistics.stat4}))"></strong></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </th:block>
+
+        <!-- Save form — only for a live (not reopened) same-sport result -->
+        <section th:if="${player1Id != null and player2Id != null and comparison != null}" class="card">
+            <h2>Save this comparison</h2>
+            <form th:action="@{/scout/comparisons/save}" method="post" class="row" style="align-items:flex-end">
                 <input type="hidden" name="player1Id" th:value="${player1Id}">
                 <input type="hidden" name="player2Id" th:value="${player2Id}">
-                <div class="form-group">
-                    <label for="title">Title <small style="color:#999;">(optional)</small></label>
-                    <input type="text" id="title" name="title"
-                           placeholder="e.g. Striker showdown — Messi vs Ronaldo">
+                <div class="form-group" style="flex:1; min-width:220px; margin-bottom:0">
+                    <label for="title">Title <small>(optional)</small></label>
+                    <input type="text" id="title" name="title" maxlength="255"
+                           th:placeholder="${p1.name} + ' vs ' + ${p2.name}">
                 </div>
-                <button type="submit" class="btn btn-success">💾 Save Comparison</button>
+                <button type="submit" class="btn btn-primary">Save comparison</button>
             </form>
-        </div>
+        </section>
 
-        <!-- Shown when reopening a saved comparison -->
-        <div th:unless="${player1Id != null and player2Id != null}" class="alert alert-info">
-            This is a saved comparison.
-            <a th:href="@{/scout/comparisons}">View all saved comparisons →</a>
+        <div th:if="${savedComparison != null}" class="alert alert-info">
+            This is a saved comparison. <a th:href="@{/scout/comparisons}">View all saved comparisons →</a>
         </div>
-
     </div>
-
-    <br>
-    <a th:href="@{/scout/compare}"     class="btn btn-secondary">← Compare Again</a>
-    <a th:href="@{/scout/comparisons}" class="btn btn-primary">📂 My Comparison History</a>
-</div>
+</main>
 
 </body>
 </html>

@@ -1,35 +1,33 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>All Players — Admin — SPVSS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Manage players')}"></head>
 <body>
 
-<nav>
-    <a class="brand" th:href="@{/admin/dashboard}">🏅 SPVSS — Admin</a>
-    <div>
-        <a th:href="@{/admin/players}">All Players</a>
-        <a th:href="@{/admin/players/new}">Add Player</a>
-        <a th:href="@{/logout}">Logout</a>
-    </div>
-</nav>
+<header th:replace="~{fragments/layout :: topbar('admin-players')}"></header>
 
-<div class="container">
-    <h1>All Players</h1>
-
-    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-
-    <a th:href="@{/admin/players/new}" class="btn btn-success">+ Add New Player</a>
-    <br><br>
-
-    <div th:if="${#lists.isEmpty(players)}" class="alert alert-info">
-        No players found. Add the first player using the button above.
+<main class="page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Manage players</h1>
+            <p><span th:text="${#lists.size(players)}">0</span> player profiles in the database.</p>
+        </div>
+        <div class="actions">
+            <a th:href="@{/admin/players/new}" class="btn btn-primary">Add player</a>
+        </div>
     </div>
 
-    <table th:unless="${#lists.isEmpty(players)}">
-        <thead>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div th:if="${#lists.isEmpty(players)}" class="empty">
+        <h3>No players yet</h3>
+        <p>Add the first player profile to get started.</p>
+        <a th:href="@{/admin/players/new}" class="btn btn-primary">Add player</a>
+    </div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(players)}">
+        <table>
+            <thead>
             <tr>
                 <th>Name</th>
                 <th>Sport</th>
@@ -37,29 +35,30 @@
                 <th>Position</th>
                 <th>Team / Club</th>
                 <th>Nationality</th>
-                <th>Actions</th>
+                <th class="actions">Actions</th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             <tr th:each="player : ${players}">
-                <td th:text="${player.name}"></td>
-                <td th:text="${player.sport}"></td>
-                <td th:text="${player.age}"></td>
+                <td class="cell-strong" th:text="${player.name}"></td>
+                <td><span class="badge badge-sport" th:classappend="'badge-' + ${#strings.toLowerCase(player.sport)}"
+                          th:text="${player.sport}"></span></td>
+                <td class="num" th:text="${player.age}"></td>
                 <td th:text="${player.position}"></td>
                 <td th:text="${player.club}"></td>
                 <td th:text="${player.nationality}"></td>
-                <td>
-                    <a th:href="@{/admin/players/edit/{id}(id=${player.id})}" class="btn btn-primary">Edit</a>
-                    <form th:action="@{/admin/players/delete/{id}(id=${player.id})}"
-                          method="post" style="display:inline;"
-                          onsubmit="return confirm('Delete this player?');">
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                <td class="actions">
+                    <a th:href="@{/admin/players/edit/{id}(id=${player.id})}" class="btn btn-outline btn-sm">Edit</a>
+                    <form th:action="@{/admin/players/delete/{id}(id=${player.id})}" method="post" class="inline-form"
+                          th:attr="data-confirm='Delete ' + ${player.name} + '? Their scouting reports are deleted too.'">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
                 </td>
             </tr>
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
+</main>
 
 </body>
 </html>

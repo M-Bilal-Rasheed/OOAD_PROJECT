@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head(${selectedSport} + ' analytics')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: topbar('analytics')}"></header>
+
+<main class="page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Performance analytics</div>
+            <h1 th:text="${selectedSport} + ' insights'">Sport insights</h1>
+            <p th:text="${summary.profile.description}">Description</p>
+        </div>
+        <div class="actions">
+            <a th:href="@{/scout/compare}" class="btn btn-outline">Compare two players</a>
+        </div>
+    </div>
+
+    <nav class="tabs" aria-label="Choose a sport">
+        <a th:each="sp : ${sports}" th:href="@{/scout/analytics(sport=${sp})}" th:text="${sp}"
+           th:classappend="${sp == selectedSport} ? 'active'"
+           th:attr="aria-current=${sp == selectedSport} ? 'page' : null">Sport</a>
+    </nav>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div th:if="${summary.empty}" class="empty">
+        <h3 th:text="'No ' + ${selectedSport} + ' players yet'">No players</h3>
+        <p>Analytics use only the statistics stored in the database. Add players for this sport to see insights.</p>
+        <a th:href="@{/scout/players}" class="btn btn-outline">Browse players</a>
+    </div>
+
+    <th:block th:unless="${summary.empty}">
+        <!-- KPI cards -->
+        <section class="kpi-grid" aria-label="Key figures">
+            <div class="kpi kpi-accent">
+                <span class="kpi-label">Players tracked</span>
+                <span class="kpi-value" th:text="${summary.playerCount}">0</span>
+                <span class="kpi-sub">Average age <span th:text="${summary.averageAge}">0</span></span>
+            </div>
+            <a class="kpi" th:if="${summary.topPerformer != null}"
+               th:href="@{/scout/players/{id}(id=${summary.topPerformer.player.id})}">
+                <span class="kpi-label">Top performance index</span>
+                <span class="kpi-value" th:text="${summary.topPerformer.score}">0</span>
+                <span class="kpi-sub" th:text="${summary.topPerformer.player.name}">Name</span>
+            </a>
+            <div class="kpi" th:each="st : ${summary.statSummaries}">
+                <span class="kpi-label" th:text="'Avg ' + ${st.definition.shortLabel}">Avg</span>
+                <span class="kpi-value" th:text="${st.averageFormatted}">0</span>
+                <span class="kpi-sub" th:if="${st.best != null}"
+                      th:text="'Best: ' + ${st.best.formattedValue} + ' · ' + ${st.best.player.name}">Best</span>
+                <span class="kpi-sub" th:if="${st.best == null}">No data</span>
+            </div>
+        </section>
+
+        <div class="grid grid-main-side section">
+            <!-- Per-statistic leaderboards -->
+            <section>
+                <div class="section-title">
+                    <h2>Statistic leaders</h2>
+                    <span class="card-sub">Top 5 per statistic, ordered by each statistic's own rule</span>
+                </div>
+                <div class="grid grid-2">
+                    <article class="card" th:each="st : ${summary.statSummaries}">
+                        <div class="stat-card-head">
+                            <div>
+                                <h3 th:text="${st.definition.label}">Stat</h3>
+                                <div class="direction">
+                                    <span th:text="${st.definition.directionLabel}">Higher is better</span>
+                                    <span th:if="${st.definition.scaled}"> · stored ×10, shown decoded</span>
+                                </div>
+                            </div>
+                            <div class="stat-avg">avg<strong th:text="${st.averageFormatted}">0</strong></div>
+                        </div>
+                        <ol class="leader-list">
+                            <li class="leader" th:each="e : ${st.leaders}">
+                                <span class="leader-rank" th:text="${e.rank}">1</span>
+                                <a class="leader-name" th:href="@{/scout/players/{id}(id=${e.player.id})}" th:text="${e.player.name}">Name</a>
+                                <span class="leader-value" th:text="${e.formattedValue}">0</span>
+                                <div class="bar-track"><div class="bar-fill" th:style="'width:' + ${e.barWidth} + '%'"></div></div>
+                            </li>
+                        </ol>
+                        <p th:if="${#lists.isEmpty(st.leaders)}" class="muted">No values recorded.</p>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Performance index ranking -->
+            <section class="card">
+                <h2>Performance index ranking</h2>
+                <p class="card-sub" style="margin-bottom:16px">
+                    Each player's average score across the four statistics, relative to the other
+                    <span th:text="${selectedSport}">sport</span> players stored here (0–100).
+                </p>
+                <ol class="leader-list">
+                    <li class="leader" th:each="e, it : ${summary.indexLeaderboard}" th:if="${it.index < 10}">
+                        <span class="leader-rank" th:text="${e.rank}">1</span>
+                        <a class="leader-name" th:href="@{/scout/players/{id}(id=${e.player.id})}" th:text="${e.player.name}">Name</a>
+                        <span class="leader-value" th:text="${e.score}">0</span>
+                        <div class="bar-track"><div class="bar-fill" th:style="'width:' + ${e.barWidth} + '%'"></div></div>
+                    </li>
+                </ol>
+                <p th:if="${summary.playerCount > 10}" class="muted" style="font-size:.8rem; margin-top:12px">
+                    Showing the top 10 of <span th:text="${summary.playerCount}">0</span> players.
+                </p>
+            </section>
+        </div>
+
+        <!-- Full stats table -->
+        <section class="section">
+            <div class="section-title">
+                <h2 th:text="'All ' + ${selectedSport} + ' players'">All players</h2>
+                <span class="card-sub">Best value in each column is highlighted</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Player</th>
+                        <th th:each="st : ${summary.statSummaries}" th:text="${st.definition.shortLabel}">Stat</th>
+                        <th>Index</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${summary.indexLeaderboard}">
+                        <td><a class="cell-link" th:href="@{/scout/players/{id}(id=${e.player.id})}" th:text="${e.player.name}"></a>
+                            <small class="muted" th:text="' · ' + ${e.player.position}"></small></td>
+                        <td class="num" th:each="st : ${summary.statSummaries}"
+                            th:with="raw=${st.definition.rawValue(e.player.statistics)}"
+                            th:classappend="${st.best != null and st.definition.compareRaw(raw, st.definition.rawValue(st.best.player.statistics)) == 0} ? 'highlight'"
+                            th:text="${st.definition.format(raw)}">0</td>
+                        <td class="num cell-strong" th:text="${e.score}">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <p class="muted" style="font-size:.82rem">
+                All figures come from the player statistics stored in this system. No external or live data is used.
+            </p>
+        </section>
+    </th:block>
+</main>
+
+</body>
+</html>

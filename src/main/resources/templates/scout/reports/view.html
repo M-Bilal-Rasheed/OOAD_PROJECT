@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Report: ' + ${report.player.name})}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: topbar('reports')}"></header>
+
+<main class="page page-narrow">
+    <div class="breadcrumb"><a th:href="@{/scout/reports}">Scouting reports</a> / <span th:text="${report.player.name}">Player</span></div>
+    <div class="page-header">
+        <div>
+            <div class="row">
+                <span class="badge badge-sport" th:classappend="'badge-' + ${#strings.toLowerCase(report.player.sport)}"
+                      th:text="${report.player.sport}">Sport</span>
+                <span class="badge" th:classappend="'badge-' + ${report.recommendation.cssClass}"
+                      th:text="${report.recommendation.displayName}">Verdict</span>
+            </div>
+            <h1 style="margin-top:8px">
+                <a class="cell-link" th:href="@{/scout/players/{id}(id=${report.player.id})}" th:text="${report.player.name}">Player</a>
+            </h1>
+            <p>
+                <span th:text="${report.player.position}">Position</span> · <span th:text="${report.player.club}">Club</span> ·
+                by <span th:text="${report.author.fullName}">Scout</span> ·
+                <span th:text="${#temporals.format(report.createdAt, 'd MMM yyyy')}">date</span>
+                <span th:if="${report.edited}" th:text="'(edited ' + ${#temporals.format(report.updatedAt, 'd MMM yyyy, HH:mm')} + ')'"></span>
+            </p>
+        </div>
+        <div class="actions">
+            <a th:href="@{/scout/reports/{id}/edit(id=${report.id})}" class="btn btn-primary">Edit report</a>
+            <form th:action="@{/scout/reports/{id}/delete(id=${report.id})}" method="post" class="inline-form"
+                  data-confirm="Delete this scouting report? This cannot be undone.">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <section class="card">
+        <div class="report-section">
+            <h3>Overall recommendation</h3>
+            <p><strong th:text="${report.recommendation.displayName}">Verdict</strong></p>
+            <p class="report-text" th:text="${report.recommendationSummary}" style="margin-top:6px">Summary</p>
+        </div>
+        <div class="report-section">
+            <h3>Potential</h3>
+            <p style="margin-bottom:6px">
+                <span class="rating-dots" aria-hidden="true">
+                    <i th:each="n : ${#numbers.sequence(1, 10)}" th:classappend="${n <= report.potentialRating} ? 'on'"></i>
+                </span>
+                <strong th:text="${report.potentialRating} + '/10'">5/10</strong>
+            </p>
+            <p class="report-text" th:text="${report.potential}">Potential</p>
+        </div>
+        <div class="report-section">
+            <h3>Strengths</h3>
+            <p class="report-text" th:text="${report.strengths}">Strengths</p>
+        </div>
+        <div class="report-section">
+            <h3>Weaknesses</h3>
+            <p class="report-text" th:text="${report.weaknesses}">Weaknesses</p>
+        </div>
+        <div class="report-section">
+            <h3>Performance observations</h3>
+            <p class="report-text" th:text="${report.performanceObservations}">Observations</p>
+        </div>
+    </section>
+
+    <div class="row">
+        <a th:href="@{/scout/reports}" class="btn btn-outline">← All reports</a>
+        <a th:href="@{/scout/players/{id}(id=${report.player.id})}" class="btn btn-outline">Player profile</a>
+    </div>
+</main>
+
+</body>
+</html>

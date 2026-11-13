@@ -1,90 +1,87 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Player Search — Scout — SPVSS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Player search')}"></head>
 <body>
 
-<nav>
-    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS — Scout</a>
-    <div>
-        <a th:href="@{/scout/players}">Players</a>
-        <a th:href="@{/scout/compare}">Compare</a>
-        <a th:href="@{/scout/shortlist}">My Shortlist</a>
-        <a th:href="@{/logout}">Logout</a>
+<header th:replace="~{fragments/layout :: topbar('players')}"></header>
+
+<main class="page">
+    <div class="page-header">
+        <div>
+            <h1>Player search</h1>
+            <p>Filter the player database by name, sport, position or team.</p>
+        </div>
     </div>
-</nav>
 
-<div class="container">
-    <h1>Player Search</h1>
-
-    <!-- Search and filter form -->
-    <form th:action="@{/scout/players}" method="get" class="search-form">
+    <form th:action="@{/scout/players}" method="get" class="card search-panel" role="search">
         <div class="form-group">
-            <label>Name</label>
-            <input type="text" name="name" th:value="${searchName}" placeholder="Search by name...">
+            <label for="f-name">Name</label>
+            <input type="search" id="f-name" name="name" th:value="${searchName}" placeholder="Search by name">
         </div>
         <div class="form-group">
-            <label>Sport</label>
-            <select name="sport">
-                <option value="" th:selected="${searchSport == ''}">All Sports</option>
-                <option value="Football"   th:selected="${searchSport == 'Football'}">⚽ Football</option>
-                <option value="Cricket"    th:selected="${searchSport == 'Cricket'}">🏏 Cricket</option>
-                <option value="Basketball" th:selected="${searchSport == 'Basketball'}">🏀 Basketball</option>
-                <option value="Tennis"     th:selected="${searchSport == 'Tennis'}">🎾 Tennis</option>
+            <label for="f-sport">Sport</label>
+            <select id="f-sport" name="sport">
+                <option value=""           th:selected="${searchSport == ''}">All sports</option>
+                <option value="Football"   th:selected="${searchSport == 'Football'}">Football</option>
+                <option value="Cricket"    th:selected="${searchSport == 'Cricket'}">Cricket</option>
+                <option value="Basketball" th:selected="${searchSport == 'Basketball'}">Basketball</option>
+                <option value="Tennis"     th:selected="${searchSport == 'Tennis'}">Tennis</option>
             </select>
         </div>
         <div class="form-group">
-            <label>Position / Role</label>
-            <input type="text" name="position" th:value="${searchPosition}" placeholder="e.g. Striker, Batsman...">
+            <label for="f-position">Position / role</label>
+            <input type="text" id="f-position" name="position" th:value="${searchPosition}" placeholder="e.g. Striker">
         </div>
         <div class="form-group">
-            <label>Team / Club</label>
-            <input type="text" name="club" th:value="${searchClub}" placeholder="Search by team...">
+            <label for="f-club">Team / club</label>
+            <input type="text" id="f-club" name="club" th:value="${searchClub}" placeholder="Search by team">
         </div>
-        <div>
+        <div class="btn-group">
             <button type="submit" class="btn btn-primary">Search</button>
-            <a th:href="@{/scout/players}" class="btn btn-secondary">Clear</a>
+            <a th:href="@{/scout/players}" class="btn btn-outline">Clear</a>
         </div>
     </form>
 
-    <div th:if="${noResults}" class="alert alert-info">
-        No players match your search criteria. Try different filters.
+    <div th:if="${noResults}" class="empty">
+        <h3>No players match these filters</h3>
+        <p>Try a different name, sport or team.</p>
+        <a th:href="@{/scout/players}" class="btn btn-outline">Clear filters</a>
     </div>
 
-    <table th:unless="${noResults}">
-        <thead>
+    <div class="table-wrap" th:unless="${noResults}">
+        <table>
+            <thead>
             <tr>
                 <th>Name</th>
                 <th>Sport</th>
                 <th>Age</th>
                 <th>Position</th>
                 <th>Team / Club</th>
-                <th>Est. Value</th>
-                <th>View</th>
+                <th>Est. value</th>
+                <th class="actions"><span class="visually-hidden">Actions</span></th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             <tr th:each="player : ${players}">
-                <td th:text="${player.name}"></td>
-                <td th:text="${player.sport}"></td>
-                <td th:text="${player.age}"></td>
+                <td><a class="cell-link" th:href="@{/scout/players/{id}(id=${player.id})}" th:text="${player.name}"></a></td>
+                <td><span class="badge badge-sport" th:classappend="'badge-' + ${#strings.toLowerCase(player.sport)}"
+                          th:text="${player.sport}"></span></td>
+                <td class="num" th:text="${player.age}"></td>
                 <td th:text="${player.position}"></td>
                 <td th:text="${player.club}"></td>
-                <td>
+                <td class="num">
                     <span th:if="${player.estimatedValue != null}"
                           th:text="'£' + ${#numbers.formatInteger(player.estimatedValue, 1, 'COMMA')}"></span>
-                    <span th:unless="${player.estimatedValue != null}" style="color:#999;">Not calculated</span>
+                    <span th:unless="${player.estimatedValue != null}" class="muted">Not calculated</span>
                 </td>
-                <td>
-                    <a th:href="@{/scout/players/{id}(id=${player.id})}" class="btn btn-primary">View</a>
+                <td class="actions">
+                    <a th:href="@{/scout/players/{id}(id=${player.id})}" class="btn btn-outline btn-sm">View profile</a>
                 </td>
             </tr>
-        </tbody>
-    </table>
-</div>
+            </tbody>
+        </table>
+    </div>
+</main>
 
 </body>
 </html>

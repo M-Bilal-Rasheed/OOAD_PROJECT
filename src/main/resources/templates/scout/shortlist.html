@@ -1,72 +1,69 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>My Shortlist — SPVSS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('My shortlist')}"></head>
 <body>
 
-<nav>
-    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS — Scout</a>
-    <div>
-        <a th:href="@{/scout/players}">Players</a>
-        <a th:href="@{/scout/compare}">Compare</a>
-        <a th:href="@{/scout/shortlist}">My Shortlist</a>
-        <a th:href="@{/logout}">Logout</a>
-    </div>
-</nav>
+<header th:replace="~{fragments/layout :: topbar('shortlist')}"></header>
 
-<div class="container">
-    <h1>My Shortlist</h1>
-    <p>Scout: <strong th:text="${scoutName}"></strong></p>
-
-    <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-
-    <!-- Aggregation: shortlist holds references to Player objects.
-         Removing a player from this list does NOT delete them from the database. -->
-    <div th:if="${#lists.isEmpty(shortlist)}" class="alert alert-info">
-        Your shortlist is empty. Browse players and click "Add to Shortlist" to add them here.
+<main class="page">
+    <div class="page-header">
+        <div>
+            <h1>My shortlist</h1>
+            <p>Players you are tracking, <span th:text="${scoutName}">Scout</span>.
+               Removing a player here does not delete them from the database.</p>
+        </div>
+        <div class="actions">
+            <a th:href="@{/scout/players}" class="btn btn-outline">Browse players</a>
+        </div>
     </div>
 
-    <table th:unless="${#lists.isEmpty(shortlist)}">
-        <thead>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <!-- Aggregation: shortlist holds references to Player objects. -->
+    <div th:if="${#lists.isEmpty(shortlist)}" class="empty">
+        <h3>Your shortlist is empty</h3>
+        <p>Open a player's profile and choose "Add to shortlist".</p>
+        <a th:href="@{/scout/players}" class="btn btn-primary">Find players</a>
+    </div>
+
+    <div class="table-wrap" th:unless="${#lists.isEmpty(shortlist)}">
+        <table>
+            <thead>
             <tr>
                 <th>Name</th>
                 <th>Sport</th>
                 <th>Position</th>
                 <th>Team / Club</th>
                 <th>Nationality</th>
-                <th>Est. Value</th>
-                <th>Actions</th>
+                <th>Est. value</th>
+                <th class="actions"><span class="visually-hidden">Actions</span></th>
             </tr>
-        </thead>
-        <tbody>
+            </thead>
+            <tbody>
             <tr th:each="player, iterStat : ${shortlist}">
-                <td th:text="${player.name}"></td>
-                <td th:text="${player.sport}"></td>
+                <td><a class="cell-link" th:href="@{/scout/players/{id}(id=${player.id})}" th:text="${player.name}"></a></td>
+                <td><span class="badge badge-sport" th:classappend="'badge-' + ${#strings.toLowerCase(player.sport)}"
+                          th:text="${player.sport}"></span></td>
                 <td th:text="${player.position}"></td>
                 <td th:text="${player.club}"></td>
                 <td th:text="${player.nationality}"></td>
-                <td>
+                <td class="num">
                     <span th:if="${player.estimatedValue != null}"
                           th:text="'£' + ${#numbers.formatInteger(player.estimatedValue, 1, 'COMMA')}"></span>
-                    <span th:unless="${player.estimatedValue != null}" style="color:#999;">Not calculated</span>
+                    <span th:unless="${player.estimatedValue != null}" class="muted">Not calculated</span>
                 </td>
-                <td>
-                    <a th:href="@{/scout/players/{id}(id=${player.id})}" class="btn btn-primary">View</a>
-                    <!-- Aggregation: remove only from shortlist, player still exists in DB -->
+                <td class="actions">
+                    <a th:href="@{/scout/players/{id}(id=${player.id})}" class="btn btn-outline btn-sm">View</a>
                     <form th:action="@{/scout/shortlist/remove/{entryId}(entryId=${entryIds[iterStat.index]})}"
-                          method="post" style="display:inline;">
-                        <button type="submit" class="btn btn-danger">Remove</button>
+                          method="post" class="inline-form">
+                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                     </form>
                 </td>
             </tr>
-        </tbody>
-    </table>
-
-    <a th:href="@{/scout/players}" class="btn btn-secondary">← Back to Players</a>
-</div>
+            </tbody>
+        </table>
+    </div>
+</main>
 
 </body>
 </html>

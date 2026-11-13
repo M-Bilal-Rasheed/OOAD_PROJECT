@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head(${isEdit} ? 'Edit scouting report' : 'New scouting report')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: topbar('reports')}"></header>
+
+<main class="page page-narrow">
+    <div class="breadcrumb"><a th:href="@{/scout/reports}">Scouting reports</a> /
+        <span th:text="${isEdit} ? 'Edit' : 'New'">New</span></div>
+    <div class="page-header">
+        <div>
+            <h1 th:text="${isEdit} ? 'Edit scouting report' : 'New scouting report'">Scouting report</h1>
+            <p th:if="${selectedPlayer != null}">
+                <span th:text="${selectedPlayer.name}">Player</span> ·
+                <span th:text="${selectedPlayer.sport}">Sport</span> ·
+                <span th:text="${selectedPlayer.position}">Position</span> ·
+                <span th:text="${selectedPlayer.club}">Club</span>
+            </p>
+            <p th:if="${selectedPlayer == null}">Choose a player, then record your assessment.</p>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <form th:object="${reportForm}" method="post"
+          th:action="${isEdit} ? @{/scout/reports/{id}(id=${existingReport.id})} : @{/scout/reports}">
+
+        <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-error" th:each="e : ${#fields.globalErrors()}" th:text="${e}"></div>
+
+        <section class="card">
+            <h2>Player</h2>
+            <div th:if="${isEdit}" class="detail-grid">
+                <div class="detail-item">
+                    <span class="label">Player</span>
+                    <span class="value" th:text="${selectedPlayer.name}">Player</span>
+                </div>
+                <div class="detail-item">
+                    <span class="label">Sport</span>
+                    <span class="value" th:text="${selectedPlayer.sport}">Sport</span>
+                </div>
+                <input type="hidden" th:field="*{playerId}">
+            </div>
+            <div th:unless="${isEdit}" class="form-group" th:classappend="${#fields.hasErrors('playerId')} ? 'has-error'">
+                <label for="playerId">Player *</label>
+                <select id="playerId" th:field="*{playerId}" required>
+                    <option value="">Select a player</option>
+                    <option th:each="p : ${players}" th:value="${p.id}"
+                            th:text="${p.name} + ' — ' + ${p.sport} + ', ' + ${p.position}"></option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('playerId')}" th:errors="*{playerId}"></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Assessment</h2>
+            <div class="form-grid">
+                <div class="form-group" th:classappend="${#fields.hasErrors('strengths')} ? 'has-error'">
+                    <label for="strengths">Strengths *</label>
+                    <textarea id="strengths" th:field="*{strengths}" maxlength="2000" required
+                              placeholder="What does the player do well?"></textarea>
+                    <div class="field-error" th:if="${#fields.hasErrors('strengths')}" th:errors="*{strengths}"></div>
+                </div>
+                <div class="form-group" th:classappend="${#fields.hasErrors('weaknesses')} ? 'has-error'">
+                    <label for="weaknesses">Weaknesses *</label>
+                    <textarea id="weaknesses" th:field="*{weaknesses}" maxlength="2000" required
+                              placeholder="What needs work?"></textarea>
+                    <div class="field-error" th:if="${#fields.hasErrors('weaknesses')}" th:errors="*{weaknesses}"></div>
+                </div>
+                <div class="form-group span-2" th:classappend="${#fields.hasErrors('performanceObservations')} ? 'has-error'">
+                    <label for="performanceObservations">Performance observations *</label>
+                    <textarea id="performanceObservations" th:field="*{performanceObservations}" maxlength="2000" required
+                              placeholder="What did you see in matches or training?"></textarea>
+                    <div class="field-error" th:if="${#fields.hasErrors('performanceObservations')}" th:errors="*{performanceObservations}"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Potential</h2>
+            <div class="form-group" th:classappend="${#fields.hasErrors('potentialRating')} ? 'has-error'">
+                <label for="potentialRating">Potential rating (1 = low, 10 = elite) *</label>
+                <div class="rating-row">
+                    <input type="range" id="potentialRating" th:field="*{potentialRating}" min="1" max="10" step="1"
+                           oninput="document.getElementById('ratingOut').textContent = this.value + '/10'">
+                    <output id="ratingOut" class="rating-value" for="potentialRating"
+                            th:text="${reportForm.potentialRating} + '/10'">5/10</output>
+                </div>
+                <div class="field-error" th:if="${#fields.hasErrors('potentialRating')}" th:errors="*{potentialRating}"></div>
+            </div>
+            <div class="form-group" th:classappend="${#fields.hasErrors('potential')} ? 'has-error'">
+                <label for="potential">Potential *</label>
+                <textarea id="potential" th:field="*{potential}" maxlength="2000" required
+                          placeholder="How far could this player go, and what would it take?"></textarea>
+                <div class="field-error" th:if="${#fields.hasErrors('potential')}" th:errors="*{potential}"></div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Overall recommendation</h2>
+            <fieldset class="form-group" style="border:0" th:classappend="${#fields.hasErrors('recommendation')} ? 'has-error'">
+                <legend class="form-label" style="margin-bottom:8px">Verdict *</legend>
+                <div class="choice-grid">
+                    <label class="choice" th:each="rec : ${recommendations}">
+                        <input type="radio" th:field="*{recommendation}" th:value="${rec}" required>
+                        <span th:text="${rec.displayName}">Verdict</span>
+                    </label>
+                </div>
+                <div class="field-error" th:if="${#fields.hasErrors('recommendation')}" th:errors="*{recommendation}"></div>
+            </fieldset>
+            <div class="form-group" th:classappend="${#fields.hasErrors('recommendationSummary')} ? 'has-error'">
+                <label for="recommendationSummary">Why? *</label>
+                <textarea id="recommendationSummary" th:field="*{recommendationSummary}" maxlength="2000" required
+                          placeholder="Summarise the reasons behind your verdict."></textarea>
+                <div class="field-error" th:if="${#fields.hasErrors('recommendationSummary')}" th:errors="*{recommendationSummary}"></div>
+            </div>
+        </section>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg" th:text="${isEdit} ? 'Save changes' : 'Save report'">Save</button>
+            <a th:if="${isEdit}" th:href="@{/scout/reports/{id}(id=${existingReport.id})}" class="btn btn-outline btn-lg">Cancel</a>
+            <a th:unless="${isEdit}" th:href="${selectedPlayer != null} ? @{/scout/players/{id}(id=${selectedPlayer.id})} : @{/scout/reports}"
+               class="btn btn-outline btn-lg">Cancel</a>
+        </div>
+    </form>
+</main>
+
+</body>
+</html>

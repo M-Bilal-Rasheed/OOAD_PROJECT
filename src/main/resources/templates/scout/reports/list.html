@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Scouting reports')}"></head>
+<body>
+
+<header th:replace="~{fragments/layout :: topbar('reports')}"></header>
+
+<main class="page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Scout notes</div>
+            <h1>My scouting reports</h1>
+            <p>Your personal assessments of players. Reports are private: other scouts cannot see, edit or delete them.</p>
+        </div>
+        <div class="actions">
+            <a th:href="@{/scout/reports/new}" class="btn btn-primary">New report</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <nav class="tabs" aria-label="Filter by sport" th:if="${totalReports > 0}">
+        <a th:href="@{/scout/reports}" th:classappend="${selectedSport == ''} ? 'active'">All</a>
+        <a th:each="sp : ${ {'Football','Cricket','Basketball','Tennis'} }"
+           th:href="@{/scout/reports(sport=${sp})}" th:text="${sp}"
+           th:classappend="${#strings.equalsIgnoreCase(selectedSport, sp)} ? 'active'">Sport</a>
+    </nav>
+
+    <div th:if="${totalReports == 0}" class="empty">
+        <h3>No scouting reports yet</h3>
+        <p>Write down strengths, weaknesses, potential and your overall recommendation for any player.</p>
+        <a th:href="@{/scout/reports/new}" class="btn btn-primary">Write your first report</a>
+    </div>
+
+    <div th:if="${totalReports > 0 and #lists.isEmpty(reports)}" class="empty">
+        <h3 th:text="'No ' + ${selectedSport} + ' reports'">No reports</h3>
+        <p>You have not written a report for a player in this sport yet.</p>
+        <a th:href="@{/scout/reports}" class="btn btn-outline">Show all reports</a>
+    </div>
+
+    <div class="report-list" th:unless="${#lists.isEmpty(reports)}">
+        <article class="report-card" th:each="r : ${reports}">
+            <div class="row" style="justify-content:space-between">
+                <span class="badge badge-sport" th:classappend="'badge-' + ${#strings.toLowerCase(r.player.sport)}"
+                      th:text="${r.player.sport}">Sport</span>
+                <span class="badge" th:classappend="'badge-' + ${r.recommendation.cssClass}"
+                      th:text="${r.recommendation.displayName}">Verdict</span>
+            </div>
+            <h3><a th:href="@{/scout/reports/{id}(id=${r.id})}" th:text="${r.player.name}">Player</a></h3>
+            <div class="muted" style="font-size:.84rem">
+                <span th:text="${r.player.position}">Position</span> · <span th:text="${r.player.club}">Club</span>
+            </div>
+            <div style="font-size:.84rem">
+                Potential
+                <span class="rating-dots" aria-hidden="true">
+                    <i th:each="n : ${#numbers.sequence(1, 10)}" th:classappend="${n <= r.potentialRating} ? 'on'"></i>
+                </span>
+                <strong th:text="${r.potentialRating} + '/10'">5/10</strong>
+            </div>
+            <p class="excerpt" th:text="${r.recommendationSummary}">Summary</p>
+            <div class="foot">
+                <span>Updated <span th:text="${#temporals.format(r.updatedAt, 'd MMM yyyy')}">date</span></span>
+                <span class="btn-group">
+                    <a th:href="@{/scout/reports/{id}(id=${r.id})}" class="btn btn-outline btn-sm">Open</a>
+                    <a th:href="@{/scout/reports/{id}/edit(id=${r.id})}" class="btn btn-outline btn-sm">Edit</a>
+                    <form th:action="@{/scout/reports/{id}/delete(id=${r.id})}" method="post" class="inline-form"
+                          data-confirm="Delete this scouting report? This cannot be undone.">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </span>
+            </div>
+        </article>
+    </div>
+</main>
+
+</body>
+</html>

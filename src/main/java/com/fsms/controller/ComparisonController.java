@@ -1,8 +1,10 @@
 package com.fsms.controller;
 
+import com.fsms.analytics.PlayerComparison;
 import com.fsms.model.Comparison;
 import com.fsms.model.Player;
 import com.fsms.service.ComparisonService;
+import com.fsms.service.PerformanceAnalyticsService;
 import com.fsms.service.PlayerService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -24,11 +26,14 @@ public class ComparisonController {
 
     private final ComparisonService comparisonService;
     private final PlayerService playerService;
+    private final PerformanceAnalyticsService analyticsService;
 
     public ComparisonController(ComparisonService comparisonService,
-                                PlayerService playerService) {
+                                PlayerService playerService,
+                                PerformanceAnalyticsService analyticsService) {
         this.comparisonService = comparisonService;
         this.playerService = playerService;
+        this.analyticsService = analyticsService;
     }
 
     // Helper — get userId from session, return null if not logged in
@@ -50,6 +55,14 @@ public class ComparisonController {
                                  RedirectAttributes redirectAttributes) {
 
         if (!isLoggedIn(session)) return "redirect:/login";
+
+        // Only same-sport comparisons can be saved
+        if (!analyticsService.isSameSport(playerService.getPlayerById(player1Id),
+                                          playerService.getPlayerById(player2Id))) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Only players of the same sport can be compared and saved.");
+            return "redirect:/scout/compare";
+        }
 
         Long userId = getUserId(session);
         comparisonService.saveComparison(userId, title, player1Id, player2Id);
@@ -95,8 +108,11 @@ public class ComparisonController {
             return "redirect:/scout/comparisons";
         }
 
-        model.addAttribute("comparison", comparison);
+        model.addAttribute("savedComparison", comparison);
         model.addAttribute("twoPlayers", players);
+        // Older saved comparisons may mix sports: analytics is shown only for same-sport pairs
+        PlayerComparison analysis = analyticsService.comparePlayers(players.get(0), players.get(1));
+        model.addAttribute("comparison", analysis);
         return "scout/compare-result";
     }
 

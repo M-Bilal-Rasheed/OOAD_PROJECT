@@ -1,66 +1,100 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Scout Dashboard — SPVSS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Scout dashboard')}"></head>
 <body>
 
-<nav>
-    <a class="brand" th:href="@{/scout/dashboard}">🏅 SPVSS</a>
-    <div>
-        <a th:href="@{/scout/players}">Players</a>
-        <a th:href="@{/scout/compare}">Compare</a>
-        <a th:href="@{/scout/comparisons}">History</a>
-        <a th:href="@{/scout/shortlist}">Shortlist</a>
-        <span class="nav-user" th:text="${scoutName}">Scout</span>
-        <a th:href="@{/logout}" class="nav-logout">Logout</a>
-    </div>
-</nav>
+<header th:replace="~{fragments/layout :: topbar('dashboard')}"></header>
 
-<div class="container">
-    <h1>Scout Dashboard</h1>
-    <p>Welcome, <strong th:text="${scoutName}">Scout</strong>.</p>
-
-    <div class="stats-row">
-        <div class="stat-card">
-            <div class="stat-number" th:text="${totalPlayers}">0</div>
-            <div class="stat-label">Total Players</div>
+<main class="page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Scout</div>
+            <h1>Welcome back, <span th:text="${scoutName}">Scout</span></h1>
+            <p>Find players, study their numbers against their sport, and keep your own scouting notes.</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${valuedPlayers}">0</div>
-            <div class="stat-label">Players Valued</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${shortlistCount}">0</div>
-            <div class="stat-label">My Shortlist</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${footballCount}">0</div>
-            <div class="stat-label">⚽ Football</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${cricketCount}">0</div>
-            <div class="stat-label">🏏 Cricket</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${basketballCount}">0</div>
-            <div class="stat-label">🏀 Basketball</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${tennisCount}">0</div>
-            <div class="stat-label">🎾 Tennis</div>
+        <div class="actions">
+            <a th:href="@{/scout/players}" class="btn btn-primary">Search players</a>
+            <a th:href="@{/scout/reports/new}" class="btn btn-outline">Write a report</a>
         </div>
     </div>
 
-    <div class="dashboard-links">
-        <a th:href="@{/scout/players}"     class="dashboard-link">🔍 Search Players</a>
-        <a th:href="@{/scout/compare}"     class="dashboard-link">⚖ Compare Players</a>
-        <a th:href="@{/scout/comparisons}" class="dashboard-link">📂 Comparison History</a>
-        <a th:href="@{/scout/shortlist}"   class="dashboard-link">📌 My Shortlist</a>
-    </div>
-</div>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
 
+    <section class="kpi-grid" aria-label="Your scouting summary">
+        <a class="kpi kpi-accent" th:href="@{/scout/players}">
+            <span class="kpi-label">Total players</span>
+            <span class="kpi-value" th:text="${totalPlayers}">0</span>
+            <span class="kpi-sub"><span th:text="${valuedPlayers}">0</span> valued</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/reports}">
+            <span class="kpi-label">My scouting reports</span>
+            <span class="kpi-value" th:text="${reportCount}">0</span>
+            <span class="kpi-sub">Private to you</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/shortlist}">
+            <span class="kpi-label">My shortlist</span>
+            <span class="kpi-value" th:text="${shortlistCount}">0</span>
+            <span class="kpi-sub">Saved players</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/analytics(sport='Football')}">
+            <span class="kpi-label">Football</span>
+            <span class="kpi-value" th:text="${footballCount}">0</span>
+            <span class="kpi-sub">View analytics</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/analytics(sport='Cricket')}">
+            <span class="kpi-label">Cricket</span>
+            <span class="kpi-value" th:text="${cricketCount}">0</span>
+            <span class="kpi-sub">View analytics</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/analytics(sport='Basketball')}">
+            <span class="kpi-label">Basketball</span>
+            <span class="kpi-value" th:text="${basketballCount}">0</span>
+            <span class="kpi-sub">View analytics</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/analytics(sport='Tennis')}">
+            <span class="kpi-label">Tennis</span>
+            <span class="kpi-value" th:text="${tennisCount}">0</span>
+            <span class="kpi-sub">View analytics</span>
+        </a>
+    </section>
+
+    <section class="section">
+        <div class="section-title"><h2>Scouting tools</h2></div>
+        <div class="tiles">
+            <a th:href="@{/scout/players}" class="tile">
+                <strong>Search players</strong>
+                <span>Filter by name, sport, position or team.</span>
+                <span class="tile-cta">Search →</span>
+            </a>
+            <a th:href="@{/scout/analytics}" class="tile">
+                <strong>Performance analytics</strong>
+                <span>Sport KPIs, stat leaders and performance index.</span>
+                <span class="tile-cta">Open analytics →</span>
+            </a>
+            <a th:href="@{/scout/compare}" class="tile">
+                <strong>Compare players</strong>
+                <span>Head-to-head for two players of the same sport.</span>
+                <span class="tile-cta">Compare →</span>
+            </a>
+            <a th:href="@{/scout/reports}" class="tile">
+                <strong>Scouting reports</strong>
+                <span>Strengths, weaknesses, potential and your verdict.</span>
+                <span class="tile-cta">My reports →</span>
+            </a>
+            <a th:href="@{/scout/comparisons}" class="tile">
+                <strong>Comparison history</strong>
+                <span>Reopen comparisons you saved earlier.</span>
+                <span class="tile-cta">History →</span>
+            </a>
+            <a th:href="@{/scout/shortlist}" class="tile">
+                <strong>My shortlist</strong>
+                <span>Players you are tracking.</span>
+                <span class="tile-cta">Shortlist →</span>
+            </a>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">SPVSS · Valuations are educational estimates, not real market values.</footer>
 </body>
 </html>

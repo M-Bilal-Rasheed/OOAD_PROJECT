@@ -3,9 +3,11 @@ package com.fsms.service;
 import com.fsms.model.Player;
 import com.fsms.model.ShortlistEntry;
 import com.fsms.repository.PlayerRepository;
+import com.fsms.repository.ScoutingReportRepository;
 import com.fsms.repository.ShortlistRepository;
 import com.fsms.valuation.ValuationStrategy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,7 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
     private final ShortlistRepository shortlistRepository;
+    private final ScoutingReportRepository scoutingReportRepository;
 
     // ============================================================
     // Strategy Design Pattern: ValuationStrategy is injected here
@@ -31,9 +34,11 @@ public class PlayerService {
 
     public PlayerService(PlayerRepository playerRepository,
                          ShortlistRepository shortlistRepository,
+                         ScoutingReportRepository scoutingReportRepository,
                          ValuationStrategy valuationStrategy) {
         this.playerRepository = playerRepository;
         this.shortlistRepository = shortlistRepository;
+        this.scoutingReportRepository = scoutingReportRepository;
         this.valuationStrategy = valuationStrategy;
     }
 
@@ -49,7 +54,11 @@ public class PlayerService {
         return playerRepository.save(player);
     }
 
+    // Scouting reports describe one player, so they are removed with it
+    // (otherwise the player_id foreign key would block the delete).
+    @Transactional
     public void deletePlayer(Long id) {
+        scoutingReportRepository.deleteByPlayerId(id);
         playerRepository.deleteById(id);
     }
 

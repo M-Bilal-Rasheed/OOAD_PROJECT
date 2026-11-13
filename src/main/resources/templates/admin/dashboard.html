@@ -1,58 +1,85 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Admin Dashboard — SPVSS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Admin dashboard')}"></head>
 <body>
 
-<nav>
-    <a class="brand" th:href="@{/admin/dashboard}">🏅 SPVSS</a>
-    <div>
-        <a th:href="@{/admin/players}">All Players</a>
-        <a th:href="@{/admin/players/new}">Add Player</a>
-        <span class="nav-user" th:text="${fullName}">Admin</span>
-        <a th:href="@{/logout}" class="nav-logout">Logout</a>
-    </div>
-</nav>
+<header th:replace="~{fragments/layout :: topbar('admin-dashboard')}"></header>
 
-<div class="container">
-    <h1>Admin Dashboard</h1>
-    <p>Welcome, <strong th:text="${fullName}">Admin</strong>. Manage player profiles across all sports.</p>
-
-    <div class="stats-row">
-        <div class="stat-card">
-            <div class="stat-number" th:text="${totalPlayers}">0</div>
-            <div class="stat-label">Total Players</div>
+<main class="page">
+    <div class="page-header">
+        <div>
+            <div class="eyebrow">Admin</div>
+            <h1>Welcome back, <span th:text="${fullName}">Admin</span></h1>
+            <p>Manage player profiles across Football, Cricket, Basketball and Tennis.</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${valuedPlayers}">0</div>
-            <div class="stat-label">Players Valued</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${footballCount}">0</div>
-            <div class="stat-label">⚽ Football</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${cricketCount}">0</div>
-            <div class="stat-label">🏏 Cricket</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${basketballCount}">0</div>
-            <div class="stat-label">🏀 Basketball</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" th:text="${tennisCount}">0</div>
-            <div class="stat-label">🎾 Tennis</div>
+        <div class="actions">
+            <a th:href="@{/admin/players/new}" class="btn btn-primary">Add player</a>
+            <a th:href="@{/admin/players}" class="btn btn-outline">Manage players</a>
         </div>
     </div>
 
-    <div class="dashboard-links">
-        <a th:href="@{/admin/players}"     class="dashboard-link">📋 View All Players</a>
-        <a th:href="@{/admin/players/new}" class="dashboard-link">➕ Add New Player</a>
-    </div>
-</div>
+    <div th:replace="~{fragments/layout :: alerts}"></div>
 
+    <section class="kpi-grid" aria-label="Player summary">
+        <div class="kpi kpi-accent">
+            <span class="kpi-label">Total players</span>
+            <span class="kpi-value" th:text="${totalPlayers}">0</span>
+            <span class="kpi-sub">Across all four sports</span>
+        </div>
+        <div class="kpi">
+            <span class="kpi-label">Players valued</span>
+            <span class="kpi-value" th:text="${valuedPlayers}">0</span>
+            <span class="kpi-sub">Have an estimated value</span>
+        </div>
+        <a class="kpi" th:href="@{/scout/analytics(sport='Football')}">
+            <span class="kpi-label">Football</span>
+            <span class="kpi-value" th:text="${footballCount}">0</span>
+            <span class="kpi-sub">View analytics</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/analytics(sport='Cricket')}">
+            <span class="kpi-label">Cricket</span>
+            <span class="kpi-value" th:text="${cricketCount}">0</span>
+            <span class="kpi-sub">View analytics</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/analytics(sport='Basketball')}">
+            <span class="kpi-label">Basketball</span>
+            <span class="kpi-value" th:text="${basketballCount}">0</span>
+            <span class="kpi-sub">View analytics</span>
+        </a>
+        <a class="kpi" th:href="@{/scout/analytics(sport='Tennis')}">
+            <span class="kpi-label">Tennis</span>
+            <span class="kpi-value" th:text="${tennisCount}">0</span>
+            <span class="kpi-sub">View analytics</span>
+        </a>
+    </section>
+
+    <section class="section">
+        <div class="section-title"><h2>Quick actions</h2></div>
+        <div class="tiles">
+            <a th:href="@{/admin/players}" class="tile">
+                <strong>Manage players</strong>
+                <span>Edit profiles and statistics, or remove players.</span>
+                <span class="tile-cta">Open list →</span>
+            </a>
+            <a th:href="@{/admin/players/new}" class="tile">
+                <strong>Add a new player</strong>
+                <span>Create a profile with four sport-specific statistics.</span>
+                <span class="tile-cta">Add player →</span>
+            </a>
+            <a th:href="@{/scout/analytics}" class="tile">
+                <strong>Performance analytics</strong>
+                <span>Sport KPIs, leaderboards and performance index.</span>
+                <span class="tile-cta">View analytics →</span>
+            </a>
+            <a th:href="@{/scout/players}" class="tile">
+                <strong>Browse as a scout</strong>
+                <span>Search, value and compare players.</span>
+                <span class="tile-cta">Browse →</span>
+            </a>
+        </div>
+    </section>
+</main>
+
+<footer class="site-footer">SPVSS · Valuations are educational estimates, not real market values.</footer>
 </body>
 </html>

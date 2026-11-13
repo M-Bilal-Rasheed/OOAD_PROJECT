@@ -1,67 +1,61 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Create Account — SPVSS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Create account')}"></head>
 <body class="auth-page">
 
-<div class="auth-container">
+<div class="auth-corner">
+    <button th:replace="~{fragments/layout :: themeToggle}"></button>
+</div>
+
+<main class="auth-container">
 
     <div class="auth-brand">
-        <span>🏅</span>
-        <h1>Sports Player Valuation &amp; Scouting</h1>
-        <p>Create your Scout account</p>
+        <div class="brand-mark" aria-hidden="true">SP</div>
+        <h1>Create your Scout account</h1>
+        <p>Search players, write scouting reports and compare performance.</p>
     </div>
 
-    <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-error" role="alert" th:text="${errorMessage}"></div>
 
     <div class="auth-card">
-
-        <div class="alert alert-info" style="margin-bottom:16px; font-size:0.875rem;">
+        <div class="alert alert-info">
             Public registration creates a <strong>Scout</strong> account.
             Admin accounts are provisioned separately by a system administrator.
         </div>
 
         <form th:action="@{/signup}" method="post">
-
             <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" name="fullName"
-                       th:value="${enteredName}"
-                       placeholder="Your full name" required autofocus>
+                <label for="fullName">Full name</label>
+                <input type="text" id="fullName" name="fullName" autocomplete="name"
+                       th:value="${enteredName}" placeholder="Your full name" required autofocus>
             </div>
 
             <div class="form-group">
-                <label for="email">Email Address</label>
-                <input type="email" id="email" name="email"
-                       th:value="${enteredEmail}"
-                       placeholder="you@example.com" required>
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email" autocomplete="email"
+                       th:value="${enteredEmail}" placeholder="you@example.com" required>
             </div>
 
             <div class="form-group">
-                <label for="password">Password <small style="color:#999;">(min. 6 characters)</small></label>
-                <input type="password" id="password" name="password"
-                       placeholder="Choose a password" required minlength="6">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" autocomplete="new-password"
+                       placeholder="At least 6 characters" required minlength="6">
             </div>
 
             <div class="form-group">
-                <label for="confirmPassword">Confirm Password</label>
-                <input type="password" id="confirmPassword" name="confirmPassword"
+                <label for="confirmPassword">Confirm password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password"
                        placeholder="Repeat your password" required minlength="6">
             </div>
 
-            <button type="submit" class="btn btn-success btn-full">Create Account</button>
+            <button type="submit" class="btn btn-primary btn-full btn-lg">Create account</button>
         </form>
 
         <p class="auth-link">
-            Already have an account?
-            <a th:href="@{/login}">Sign in</a>
+            Already have an account? <a th:href="@{/login}">Sign in</a>
         </p>
     </div>
-
-</div>
+</main>
 
 </body>
 </html>

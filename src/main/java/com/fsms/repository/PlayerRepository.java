@@ -23,4 +23,7 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
                                @Param("sport") String sport,
                                @Param("position") String position,
                                @Param("club") String club);
+
+    // All players of one sport (used by Performance Analytics)
+    List<Player> findBySportIgnoreCase(String sport);
 }

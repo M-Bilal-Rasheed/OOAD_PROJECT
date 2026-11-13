@@ -1,125 +1,110 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title th:text="${isEdit} ? 'Edit Player' : 'Add Player'">Player Form — SPVSS</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head(${isEdit} ? 'Edit player' : 'Add player')}"></head>
 <body>
 
-<nav>
-    <a class="brand" th:href="@{/admin/dashboard}">🏅 SPVSS — Admin</a>
-    <div>
-        <a th:href="@{/admin/players}">All Players</a>
-        <a th:href="@{/admin/players/new}">Add Player</a>
-        <a th:href="@{/logout}">Logout</a>
-    </div>
-</nav>
+<header th:replace="~{fragments/layout :: topbar(${isEdit} ? 'admin-players' : 'admin-new')}"></header>
 
-<div class="container">
-    <h1 th:text="${isEdit} ? 'Edit Player' : 'Add New Player'">Player Form</h1>
+<main class="page page-narrow">
+    <div class="breadcrumb"><a th:href="@{/admin/players}">Manage players</a> / <span th:text="${isEdit} ? 'Edit' : 'New'">New</span></div>
+    <div class="page-header">
+        <div>
+            <h1 th:text="${isEdit} ? 'Edit player' : 'Add a new player'">Player form</h1>
+            <p>Statistic labels change with the selected sport. Values marked ×10 are stored without the decimal point
+               (for example an economy rate of 7.4 is entered as 74).</p>
+        </div>
+    </div>
 
     <form th:action="@{/admin/players/save}" th:object="${player}" method="post">
         <input type="hidden" th:field="*{id}">
 
-        <div class="card">
-            <h2>Personal Details</h2>
+        <section class="card">
+            <h2>Personal details</h2>
+            <div class="form-grid">
+                <div class="form-group span-2" th:classappend="${#fields.hasErrors('name')} ? 'has-error'">
+                    <label for="name">Full name *</label>
+                    <input type="text" id="name" th:field="*{name}" placeholder="e.g. Virat Kohli">
+                    <div class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                </div>
 
-            <div class="form-group">
-                <label for="name">Full Name *</label>
-                <input type="text" id="name" th:field="*{name}" placeholder="e.g. Virat Kohli">
-                <div class="field-error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+                <div class="form-group" th:classappend="${#fields.hasErrors('age')} ? 'has-error'">
+                    <label for="age">Age *</label>
+                    <input type="number" id="age" th:field="*{age}" min="1" max="60" placeholder="e.g. 28">
+                    <div class="field-error" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></div>
+                </div>
+
+                <div class="form-group" th:classappend="${#fields.hasErrors('nationality')} ? 'has-error'">
+                    <label for="nationality">Nationality *</label>
+                    <input type="text" id="nationality" th:field="*{nationality}" placeholder="e.g. Indian">
+                    <div class="field-error" th:if="${#fields.hasErrors('nationality')}" th:errors="*{nationality}"></div>
+                </div>
+
+                <div class="form-group" th:classappend="${#fields.hasErrors('sport')} ? 'has-error'">
+                    <label for="sport">Sport *</label>
+                    <select id="sport" th:field="*{sport}" onchange="updateStatLabels(this.value)">
+                        <option value="">Select a sport</option>
+                        <option th:each="s : ${sports}" th:value="${s}" th:text="${s}"></option>
+                    </select>
+                    <div class="field-error" th:if="${#fields.hasErrors('sport')}" th:errors="*{sport}"></div>
+                </div>
+
+                <div class="form-group" th:classappend="${#fields.hasErrors('position')} ? 'has-error'">
+                    <label for="position">Position / role *</label>
+                    <input type="text" id="position" th:field="*{position}"
+                           placeholder="e.g. Striker, Batsman, Point Guard">
+                    <div class="field-error" th:if="${#fields.hasErrors('position')}" th:errors="*{position}"></div>
+                </div>
+
+                <div class="form-group span-2" th:classappend="${#fields.hasErrors('club')} ? 'has-error'">
+                    <label for="club">Team / club *</label>
+                    <input type="text" id="club" th:field="*{club}" placeholder="e.g. Mumbai Indians, Real Madrid">
+                    <div class="field-error" th:if="${#fields.hasErrors('club')}" th:errors="*{club}"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Player statistics</h2>
+            <div class="alert alert-info" id="stat-guide">
+                <strong>Football:</strong> Goals · Assists · Appearances · Speed Rating (1–100)<br>
+                <strong>Cricket:</strong> Runs · Wickets · Batting Avg ×10 · Economy Rate ×10 (lower is better, 0 = did not bowl)<br>
+                <strong>Basketball:</strong> Points · Assists · Rebounds · Shooting % ×10<br>
+                <strong>Tennis:</strong> Wins · Ranking (lower is better, 0 = unranked) · Aces · 1st Serve % ×10
             </div>
 
-            <div class="form-group">
-                <label for="age">Age *</label>
-                <input type="number" id="age" th:field="*{age}" min="1" max="60" placeholder="e.g. 28">
-                <div class="field-error" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></div>
+            <div class="form-grid">
+                <div class="form-group" th:classappend="${#fields.hasErrors('statistics.stat1')} ? 'has-error'">
+                    <label id="lbl1" for="stat1">Stat 1</label>
+                    <input type="number" id="stat1" th:field="*{statistics.stat1}" min="0" placeholder="0">
+                    <div class="field-error" th:if="${#fields.hasErrors('statistics.stat1')}" th:errors="*{statistics.stat1}"></div>
+                </div>
+                <div class="form-group" th:classappend="${#fields.hasErrors('statistics.stat2')} ? 'has-error'">
+                    <label id="lbl2" for="stat2">Stat 2</label>
+                    <input type="number" id="stat2" th:field="*{statistics.stat2}" min="0" placeholder="0">
+                    <div class="field-error" th:if="${#fields.hasErrors('statistics.stat2')}" th:errors="*{statistics.stat2}"></div>
+                </div>
+                <div class="form-group" th:classappend="${#fields.hasErrors('statistics.stat3')} ? 'has-error'">
+                    <label id="lbl3" for="stat3">Stat 3</label>
+                    <input type="number" id="stat3" th:field="*{statistics.stat3}" min="0" placeholder="0">
+                    <div class="field-error" th:if="${#fields.hasErrors('statistics.stat3')}" th:errors="*{statistics.stat3}"></div>
+                </div>
+                <div class="form-group" th:classappend="${#fields.hasErrors('statistics.stat4')} ? 'has-error'">
+                    <label id="lbl4" for="stat4">Stat 4</label>
+                    <input type="number" id="stat4" th:field="*{statistics.stat4}" min="0" placeholder="0">
+                    <div class="field-error" th:if="${#fields.hasErrors('statistics.stat4')}" th:errors="*{statistics.stat4}"></div>
+                </div>
             </div>
+        </section>
 
-            <div class="form-group">
-                <label for="nationality">Nationality *</label>
-                <input type="text" id="nationality" th:field="*{nationality}" placeholder="e.g. Indian">
-                <div class="field-error" th:if="${#fields.hasErrors('nationality')}" th:errors="*{nationality}"></div>
-            </div>
-
-            <!-- Sport selection — drives which stat labels appear below -->
-            <div class="form-group">
-                <label for="sport">Sport *</label>
-                <select id="sport" th:field="*{sport}" onchange="updateStatLabels(this.value)">
-                    <option value="">-- Select Sport --</option>
-                    <option th:each="s : ${sports}" th:value="${s}" th:text="${s}"></option>
-                </select>
-                <div class="field-error" th:if="${#fields.hasErrors('sport')}" th:errors="*{sport}"></div>
-            </div>
-
-            <div class="form-group">
-                <label for="position">Position / Role *</label>
-                <input type="text" id="position" th:field="*{position}"
-                       placeholder="e.g. Striker, Batsman, Point Guard, Baseline">
-                <div class="field-error" th:if="${#fields.hasErrors('position')}" th:errors="*{position}"></div>
-                <small style="color:#666;">Enter the position relevant to the selected sport.</small>
-            </div>
-
-            <div class="form-group">
-                <label for="club">Team / Club *</label>
-                <input type="text" id="club" th:field="*{club}" placeholder="e.g. Mumbai Indians, Real Madrid">
-                <div class="field-error" th:if="${#fields.hasErrors('club')}" th:errors="*{club}"></div>
-            </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary btn-lg"
+                    th:text="${isEdit} ? 'Update player' : 'Add player'">Save</button>
+            <a th:href="@{/admin/players}" class="btn btn-outline btn-lg">Cancel</a>
         </div>
-
-        <div class="card">
-            <h2>Player Statistics</h2>
-            <p style="color:#666; font-size:0.9rem; margin-bottom:8px;">
-                Enter the four statistics for the selected sport. These are used by the
-                Valuation Strategy to estimate the player's value.
-            </p>
-
-            <!-- Stat label reference (shown below the inputs) -->
-            <div id="stat-guide" class="alert alert-info" style="margin-bottom:12px; font-size:0.85rem;">
-                <strong>Football:</strong> Goals | Assists | Appearances | Speed Rating (1–100)<br>
-                <strong>Cricket:</strong> Runs | Wickets | Batting Avg ×10 | Economy Rate ×10<br>
-                <strong>Basketball:</strong> Points | Assists | Rebounds | Shooting % ×10<br>
-                <strong>Tennis:</strong> Wins | Ranking | Aces | 1st Serve % ×10
-            </div>
-
-            <div class="form-group">
-                <label id="lbl1">Stat 1</label>
-                <input type="number" id="stat1" th:field="*{statistics.stat1}" min="0" placeholder="0">
-                <div class="field-error" th:if="${#fields.hasErrors('statistics.stat1')}"
-                     th:errors="*{statistics.stat1}"></div>
-            </div>
-
-            <div class="form-group">
-                <label id="lbl2">Stat 2</label>
-                <input type="number" id="stat2" th:field="*{statistics.stat2}" min="0" placeholder="0">
-                <div class="field-error" th:if="${#fields.hasErrors('statistics.stat2')}"
-                     th:errors="*{statistics.stat2}"></div>
-            </div>
-
-            <div class="form-group">
-                <label id="lbl3">Stat 3</label>
-                <input type="number" id="stat3" th:field="*{statistics.stat3}" min="0" placeholder="0">
-                <div class="field-error" th:if="${#fields.hasErrors('statistics.stat3')}"
-                     th:errors="*{statistics.stat3}"></div>
-            </div>
-
-            <div class="form-group">
-                <label id="lbl4">Stat 4</label>
-                <input type="number" id="stat4" th:field="*{statistics.stat4}" min="0" placeholder="0">
-                <div class="field-error" th:if="${#fields.hasErrors('statistics.stat4')}"
-                     th:errors="*{statistics.stat4}"></div>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-success"
-                th:text="${isEdit} ? 'Update Player' : 'Add Player'">Save</button>
-        <a th:href="@{/admin/players}" class="btn btn-secondary">Cancel</a>
-
     </form>
-</div>
+</main>
 
-<!-- Minimal JS: update stat labels when sport changes -->
+<!-- Update stat labels when the sport changes -->
 <script>
     var sportLabels = {
         "Football":   ["Goals", "Assists", "Appearances", "Speed Rating (1-100)"],
@@ -130,15 +115,11 @@
 
     function updateStatLabels(sport) {
         var labels = sportLabels[sport];
-        if (labels) {
-            document.getElementById("lbl1").textContent = labels[0] + " *";
-            document.getElementById("lbl2").textContent = labels[1] + " *";
-            document.getElementById("lbl3").textContent = labels[2] + " *";
-            document.getElementById("lbl4").textContent = labels[3] + " *";
+        for (var i = 0; i < 4; i++) {
+            document.getElementById("lbl" + (i + 1)).textContent = labels ? labels[i] + " *" : "Stat " + (i + 1);
         }
     }
 
-    // Apply labels on page load (for edit form where sport is pre-selected)
     var currentSport = document.getElementById("sport").value;
     if (currentSport) { updateStatLabels(currentSport); }
 </script>

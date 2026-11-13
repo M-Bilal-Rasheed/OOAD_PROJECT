@@ -76,7 +76,7 @@ public class Player {
             case "Basketball":
                 return new String[]{"Points", "Assists", "Rebounds", "Shooting % (×10)"};
             case "Tennis":
-                return new String[]{"Wins", "Ranking (lower=better, inverted)", "Aces", "1st Serve % (×10)"};
+                return new String[]{"Wins", "Ranking (lower is better)", "Aces", "1st Serve % (×10)"};
             default:
                 return new String[]{"Stat 1", "Stat 2", "Stat 3", "Stat 4"};
         }
