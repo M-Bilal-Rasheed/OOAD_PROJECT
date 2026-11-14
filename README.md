@@ -8,7 +8,7 @@
 
 ✅ **FULLY WORKING AND TESTED**
 
-- Application running on `http://localhost:8080`
+- Application running on `http://localhost:8080` (local) and deployed live on Railway
 - Database connected to Supabase PostgreSQL
 - All frontend-to-database connections verified
 - Ready for deployment or teacher demonstration
@@ -23,8 +23,8 @@
 | **Framework** | Spring MVC + Spring Data JPA + Thymeleaf |
 | **Database** | PostgreSQL (Supabase) |
 | **Build Tool** | Maven |
-| **Testing** | Full end-to-end connectivity verified |
-| **Deployment** | Ready for Heroku, Railway, AWS, Docker |
+| **Testing** | 18 JUnit 5 + Mockito unit tests (`mvn test`) |
+| **Deployment** | Railway (live), Supabase PostgreSQL |
 | **OOAD Concepts** | Encapsulation, Inheritance, Polymorphism, Aggregation, Composition |
 
 ---
@@ -39,10 +39,14 @@
 ### Start Application
 
 ```powershell
-cd G:\Desktop\new\OOAD_PROJECT
-Set-ExecutionPolicy -Scope Process Bypass
-.\run.ps1
+cd OOAD_PROJECT
+$env:DB_URL = "jdbc:postgresql://<supabase-pooler-host>:5432/postgres?sslmode=require"
+$env:DB_USERNAME = "<username>"
+$env:DB_PASSWORD = "<password>"
+mvn spring-boot:run
 ```
+
+Optional: set `ADMIN_FULL_NAME`, `ADMIN_EMAIL` and `ADMIN_PASSWORD` to create the first Admin account on startup. See `.env.example`.
 
 **URL**: http://localhost:8080
 
@@ -52,29 +56,22 @@ Set-ExecutionPolicy -Scope Process Bypass
 
 Read these files in order:
 
-1. **QUICK_START_GUIDE.md** ← Start here!
-   - How to start the app
-   - How to create accounts
-   - How to use admin/scout features
-   - Troubleshooting
+1. **report.md** ← Start here!
+   - Complete technical documentation
+   - Features, routes, classes, database design
+   - Algorithms, testing and test cases
+   - Setup, run and Railway deployment guide
 
-2. **FRONTEND_DATABASE_CONNECTIVITY_GUIDE.md**
-   - How data flows from frontend to database
-   - Description of all tables
-   - Verification checklist
-   - Key connectivity points
+2. **diagrams.md**
+   - Specifications for all 8 UML diagrams
+   - Activity, Use Case, Sequence, Class
+   - Object, Component, Communication, Deployment
+   - Exact class, method and route names
 
-3. **TESTING_DATABASE_CONNECTIVITY.md**
-   - 10 complete test cases
-   - Step-by-step verification
-   - SQL queries to run
-   - Success criteria
-
-4. **DEPLOYMENT_GUIDE.md**
+3. **DEPLOYMENT_GUIDE.md**
    - How to deploy to production
-   - Heroku (easiest, 15 min)
-   - Railway (fast, 10 min)
-   - AWS (professional, 30 min)
+   - Railway
+   - AWS
    - Docker containerization
 
 ---
@@ -95,9 +92,10 @@ public class Player {
 
 ### 2. Inheritance
 ```java
-public abstract class User {
+public class User {
     private String username;
-    public abstract String getRole();
+    private String role;
+    public String getRole() { return role; }
 }
 
 public class Scout extends User {    // Inherits from User
@@ -124,9 +122,9 @@ public class BasicValuationStrategy implements ValuationStrategy {
     public long calculateValue(Player player) { /* ... */ }
 }
 
-// Usage (polymorphic)
-ValuationStrategy strategy = new BasicValuationStrategy();
-long value = strategy.calculateValue(player);  // Can be any implementation
+// Usage (polymorphic) — in PlayerService, strategy injected by Spring
+private final ValuationStrategy valuationStrategy;
+long value = valuationStrategy.calculateValue(player);  // Can be any implementation
 ```
 
 ### 4. Composition
@@ -178,7 +176,7 @@ stat1 | stat2 | stat3 | stat4
 
 **shortlist** - Scout shortlist entries (Aggregation)
 ```
-id (PK) | scout_name | player_id (FK)
+id (PK) | scout_name | player_id
 ```
 
 **scouting_reports** - Scout assessments
@@ -237,7 +235,7 @@ To verify frontend-to-database connection:
 5. ✅ Your player appears
 
 ### Complete Test Suite
-See **TESTING_DATABASE_CONNECTIVITY.md** for 10 complete test cases with expected database outputs.
+Run `mvn test` for the 18 unit tests. See **report.md** (§17) for all unit, end-to-end and manual test cases.
 
 ---
 
@@ -246,7 +244,7 @@ See **TESTING_DATABASE_CONNECTIVITY.md** for 10 complete test cases with expecte
 ### Admin Features
 - ✅ Add/Edit/Delete Players
 - ✅ View Dashboard (total players, count by sport)
-- ✅ Seed initial players (via database migration)
+- ✅ Seed the first Admin account (via environment variables)
 - ✅ Manage player statistics for 4 sports
 
 ### Scout Features
@@ -256,6 +254,8 @@ See **TESTING_DATABASE_CONNECTIVITY.md** for 10 complete test cases with expecte
 - ✅ Calculate player valuations
 - ✅ Compare players (same sport only)
 - ✅ Save comparisons for later review
+- ✅ View sport performance analytics and player insights
+- ✅ Dark/light theme (remembered across pages)
 
 ### Authentication
 - ✅ User registration (creates SCOUT account)
@@ -280,6 +280,7 @@ Frontend:
   - HTML 5
   - CSS 3 (with modern layout)
   - Thymeleaf template engine
+  - Vanilla JavaScript (theme, menu, confirm prompts)
   - Client-side validation (HTML5)
 
 Backend:
@@ -291,32 +292,26 @@ Backend:
 
 Database:
   - PostgreSQL 15+ (via Supabase)
-  - H2 in-memory (local development)
+  - H2 in-memory (dependency for the "local" demo profile)
   - Hibernate ORM 6.4.4 (DDL auto-update)
   - HikariCP (connection pooling)
 
 Build & Deploy:
   - Maven 3.9.6
-  - Docker (containerization)
-  - Heroku/Railway/AWS (deployment)
+  - JUnit 5 + Mockito (unit tests)
+  - Railway (deployment)
 ```
 
 ---
 
 ## 🚢 Deployment Options
 
-### Fastest (Recommended for Testing)
-**Heroku** → 15 minutes
-```powershell
-heroku login
-heroku create sports-scouting-app
-heroku addons:create heroku-postgresql:hobby-dev
-git push heroku main
-```
-
-### Modern & Fast
+### Current Deployment
 **Railway** → 10 minutes
-- Connect GitHub repository
+- New Project → Deploy from GitHub repo
+- Add Variables: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` (+ optional `ADMIN_*`), without quotes
+- Railway sets `PORT`; the app reads it via `server.port=${PORT:8080}`
+- Settings → Networking → Generate Domain for the public URL
 - Auto-deploys on push
 
 ### Professional & Scalable
@@ -331,10 +326,10 @@ See **DEPLOYMENT_GUIDE.md** for detailed instructions on all platforms.
 
 - ✅ Password hashing with BCrypt (not plaintext)
 - ✅ SQL injection prevention (JPA parameterized queries)
-- ✅ CSRF protection (Spring Security)
-- ✅ Role-based access control (Admin/Scout separation)
+- ✅ Role-based access control (session checks in every controller)
+- ✅ Owner-only access to scouting reports and saved comparisons
 - ✅ Session management
-- ✅ SSL/HTTPS ready for production
+- ✅ HTTPS on the Railway domain
 - ✅ Environment variables for secrets (not hardcoded)
 
 ---
@@ -356,7 +351,7 @@ OOAD_PROJECT/
 │   │   ├── PlayerController.java
 │   │   ├── ScoutController.java
 │   │   ├── AuthController.java
-│   │   └── ... (5 more controllers)
+│   │   └── ... (6 more controllers)
 │   ├── model/                  ← JPA Entities
 │   │   ├── Player.java
 │   │   ├── PlayerStatistics.java
@@ -371,7 +366,7 @@ OOAD_PROJECT/
 │   │   ├── PlayerService.java
 │   │   ├── UserService.java
 │   │   ├── ScoutingReportService.java
-│   │   └── ... (3 more services)
+│   │   └── ... (2 more services)
 │   ├── valuation/              ← Strategy Pattern
 │   │   ├── ValuationStrategy.java
 │   │   └── BasicValuationStrategy.java
@@ -384,13 +379,13 @@ OOAD_PROJECT/
 │   │   └── fragments/          ← Reusable components
 │   ├── static/                 ← CSS, JS, images
 │   ├── db/migration/           ← Database migrations
-│   ├── application.properties  ← Production config
-│   └── application-local.properties  ← Dev config
+│   └── application.properties  ← App config (env vars, port, logging)
+├── src/test/java/com/fsms/service/  ← Unit tests (18)
 ├── pom.xml                     ← Maven dependencies
-├── run.ps1                     ← Start script (Windows)
-├── Dockerfile                  ← Docker image
-├── docker-compose.yml          ← Docker orchestration
-├── Procfile                    ← Heroku deployment
+├── .env.example                ← Environment variable template
+├── report.md                   ← Full technical documentation
+├── diagrams.md                 ← 8 UML diagram specifications
+├── DEPLOYMENT_GUIDE.md         ← Deployment guide
 └── README.md                   ← This file
 ```
 
@@ -406,14 +401,14 @@ OOAD_PROJECT/
 | `PlayerController.java` | Routes requests to service | @PostMapping, @Valid |
 | `player-form.html` | HTML form submission | th:object, th:field |
 | `application.properties` | Database connection config | spring.datasource.* |
-| `SecurityConfig.java` | Authentication & authorization | BCrypt, @EnableSecurity |
+| `SecurityConfig.java` | Password hashing & security filter chain | BCrypt, @EnableWebSecurity |
 
 ---
 
 ## ❓ FAQ
 
 **Q: How do I start the application?**  
-A: `.\run.ps1` from project directory. See QUICK_START_GUIDE.md
+A: Set `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, then run `mvn spring-boot:run`. See report.md (§22)
 
 **Q: Where is my data stored?**  
 A: PostgreSQL database on Supabase. View at https://supabase.com → SQL Editor
@@ -422,16 +417,16 @@ A: PostgreSQL database on Supabase. View at https://supabase.com → SQL Editor
 A: Yes! Data is in database, not in application memory.
 
 **Q: How do I deploy to production?**  
-A: See DEPLOYMENT_GUIDE.md. Heroku takes ~15 minutes.
+A: It is deployed on Railway. See the Deployment Options section above and DEPLOYMENT_GUIDE.md.
 
 **Q: Is this secure for production?**  
-A: Yes, with SSL enabled. Passwords hashed with BCrypt, SQL injection prevented.
+A: Passwords are hashed with BCrypt, SQL injection is prevented and Railway serves HTTPS. CSRF protection is disabled and access checks are done per controller (see report.md §21).
 
 **Q: Can I use this locally without internet?**  
-A: Yes, run with H2 local database: `mvnw spring-boot:run -Dspring-boot.run.profiles=local`
+A: Not as-is. A `local` profile with H2 and demo data (`LocalDataSeeder`) exists, but the repository has no `application-local.properties`, so the app needs the Supabase database.
 
 **Q: How do I show this to my teacher?**  
-A: Start app, create account, add player, show it in database. See QUICK_START_GUIDE.md
+A: Start app, create account, add player, show it in database. See report.md
 
 ---
 
@@ -450,11 +445,11 @@ A: Start app, create account, add player, show it in database. See QUICK_START_G
 
 For specific topics, see:
 
-- **Getting Started** → QUICK_START_GUIDE.md
-- **Database Connectivity** → FRONTEND_DATABASE_CONNECTIVITY_GUIDE.md
-- **Testing & Verification** → TESTING_DATABASE_CONNECTIVITY.md
+- **Getting Started** → report.md (§22)
+- **Database Design** → report.md (§8)
+- **Testing & Verification** → report.md (§17)
 - **Production Deployment** → DEPLOYMENT_GUIDE.md
-- **OOAD Implementation** → IMPLEMENTATION_SUMMARY.md
+- **OOAD Implementation** → report.md (§13–§16), diagrams.md
 
 ---
 
@@ -506,10 +501,10 @@ Key points to mention:
 
 ## 🚀 Next Steps
 
-1. **Read**: QUICK_START_GUIDE.md
-2. **Test**: Follow TESTING_DATABASE_CONNECTIVITY.md
+1. **Read**: report.md
+2. **Test**: Run `mvn test` and follow report.md (§17)
 3. **Demo**: Show admin adding player, verify in database
-4. **Deploy**: Follow DEPLOYMENT_GUIDE.md for production
+4. **Diagrams**: Draw the 8 UML diagrams from diagrams.md
 
 ---
 
