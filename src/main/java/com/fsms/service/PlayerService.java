@@ -2,6 +2,7 @@ package com.fsms.service;
 
 import com.fsms.model.Player;
 import com.fsms.model.ShortlistEntry;
+import com.fsms.repository.ComparisonPlayerRepository;
 import com.fsms.repository.PlayerRepository;
 import com.fsms.repository.ScoutingReportRepository;
 import com.fsms.repository.ShortlistRepository;
@@ -23,6 +24,7 @@ public class PlayerService {
     private final PlayerRepository playerRepository;
     private final ShortlistRepository shortlistRepository;
     private final ScoutingReportRepository scoutingReportRepository;
+    private final ComparisonPlayerRepository comparisonPlayerRepository;
 
     // ============================================================
     // Strategy Design Pattern: ValuationStrategy is injected here
@@ -35,10 +37,12 @@ public class PlayerService {
     public PlayerService(PlayerRepository playerRepository,
                          ShortlistRepository shortlistRepository,
                          ScoutingReportRepository scoutingReportRepository,
+                         ComparisonPlayerRepository comparisonPlayerRepository,
                          ValuationStrategy valuationStrategy) {
         this.playerRepository = playerRepository;
         this.shortlistRepository = shortlistRepository;
         this.scoutingReportRepository = scoutingReportRepository;
+        this.comparisonPlayerRepository = comparisonPlayerRepository;
         this.valuationStrategy = valuationStrategy;
     }
 
@@ -61,6 +65,8 @@ public class PlayerService {
         try {
             // Delete all scouting reports for this player first
             scoutingReportRepository.deleteByPlayerId(id);
+            // Delete comparison entries for this player (FK is ON DELETE RESTRICT)
+            comparisonPlayerRepository.deleteByPlayerId(id);
             // Then delete the player itself
             playerRepository.deleteById(id);
         } catch (Exception e) {
