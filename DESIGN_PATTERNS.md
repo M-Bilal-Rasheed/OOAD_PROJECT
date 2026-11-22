@@ -224,8 +224,6 @@ Per `report.md` §14 — **none of these exist in the code:**
 #### Other OOP concepts present
 
 | Concept | File | Lines |
-|---|---|---|
-| Enumeration | `model/Recommendation.java` | 7–24 (type-safe verdict; DB CHECK constraint enforces the same values) |
 | Static members | `analytics/SportProfileRegistry.java` | 21 (`SPORT_ORDER`) |
 | Static members | `model/ScoutingReport.java` | 24 (`TEXT_LIMIT`) |
 | Static members | `service/PerformanceAnalyticsService.java` | 238 (`score`), 255 (`rank`) |
@@ -234,7 +232,101 @@ Per `report.md` §14 — **none of these exist in the code:**
 | Exception handling | `service/PerformanceAnalyticsService.java` | `IllegalArgumentException` for cross-sport comparison |
 | Constructor validation | `analytics/StatDefinition.java` | validates its arguments |
 
----
+---1) SRP — Single Responsibility Principle
+Matlab: Ek class ka ek hi kaam ho.
+
+File: RadarChart.java
+Line: ~11 (class declaration)
+Code:
+
+java
+public final class RadarChart {
+    // sirf SVG coordinates banata hai
+}
+Kaam: RadarChart sirf chart ka data (SVG coordinates) banata hai. Koi database, koi validation, koi business logic nahi. 
+
+File: StatDefinition.java
+Line: ~20
+Code:
+
+java
+public final class StatDefinition {
+    // sirf ek stat ka rule rakhta hai
+}
+Kaam: StatDefinition sirf stat ka rule (scale, higher/lower better, missing label) rakhta hai. Comparison/score alag classes mein hai.
+
+2) OCP — Open/Closed Principle
+Matlab: Naya code add karo, purana change mat karo.
+
+File: SportProfile.java
+Line: ~13
+Code:
+
+java
+public abstract class SportProfile {
+    public abstract String getSport();
+    public abstract List<StatDefinition> getStatDefinitions();
+}
+File: CricketProfile.java / BasketballProfile.java / FootballProfile.java / TennisProfile.java
+Line: ~15 (har file mein extends SportProfile)
+Code:
+
+java
+public class CricketProfile extends SportProfile {
+    // ...
+}
+Kaam: Naya sport (Tennis) add kiya — bas TennisProfile extends SportProfile. PerformanceAnalyticsService change nahi karni parti. Service SportProfile (abstract) pe kaam karti hai. 
+
+3) LSP — Liskov Substitution Principle
+Matlab: Child class parent ki jagah use ho sake.
+
+File: SportProfileRegistry.java
+Line: ~23
+Code:
+
+java
+private final Map<String, SportProfile> profiles = new LinkedHashMap<>();
+Kaam: Registry SportProfile type pe kaam karti hai. CricketProfile, BasketballProfile, FootballProfile, TennisProfile — koi bhi SportProfile ki jagah use ho sakta hai, bina registry ko farq pare. 
+
+4) ISP — Interface Segregation Principle
+Matlab: Chhote interfaces, bade nahi.
+
+File: ValuationStrategy.java (valuation folder)
+Line: ~12
+Code:
+
+java
+public interface ValuationStrategy {
+    long calculateValue(Player player);   // sirf ek method
+}
+Kaam: Interface mein sirf ek method hai. Koi class majboor nahi extra methods likhne. 
+
+5) DIP — Dependency Inversion Principle
+Matlab: Abstract pe depend karo, concrete pe nahi.
+
+File: PlayerService.java
+Line: ~31
+Code:
+
+java
+private final ValuationStrategy valuationStrategy;   // interface
+File: PlayerService.java
+Line: ~116
+Code:
+
+java
+long value = valuationStrategy.calculateValue(player);   // interface call
+Kaam: PlayerService ValuationStrategy (interface) pe depend karti hai, 
+BasicValuationStrategy
+ (concrete) pe nahi. Kal naya strategy banao, service change nahi. 
+
+File: PerformanceAnalyticsService.java
+Line: ~39
+Code:
+
+java
+private final SportProfileRegistry registry;
+Kaam: Service SportProfile (abstract) pe depend karti hai — CricketProfile pe nahi.
 
 ## 3. Consistency check vs `report.md`
 
